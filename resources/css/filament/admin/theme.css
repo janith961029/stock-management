@@ -1,0 +1,12 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@config 'tailwind.config.js';
+.scanner-input {
+    font-family: monospace !important;
+    letter-spacing: 1px;
+}
+
+.scanner-input::placeholder {
+    color: #6b7280;
+    opacity: 0.7;
+}
