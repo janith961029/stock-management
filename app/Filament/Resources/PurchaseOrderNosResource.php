@@ -16,20 +16,21 @@ use Filament\Support\Enums\FontFamily;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Forms\Components\TextInput;
-
+use Illuminate\Validation\Rule;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Actions\Action;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Facades\Filament;
 
 class PurchaseOrderNosResource extends Resource
 { public static function canViewAny(): bool
 {
-    return auth()->user()->hasPermissionTo('PurchaseOrderNos View');
+    return Filament::auth()->user()?->hasPermissionTo('PurchaseOrderNos View') ?? false;
 }
     protected static ?string $navigationGroup= 'Purchase Order';
-    protected static ?string $policy = \App\Policies\PurchaseOrderNosPolicy::class;   
+    protected static ?string $policy = \App\Policies\PurchaseOrderNosPolicy::class;
     protected static ?string $model = PurchaseOrderNos::class;
     protected static ?string $modelLabel='Purchase Orders';
     protected static ?string $navigationIcon = 'heroicon-o-circle-stack';
@@ -44,11 +45,16 @@ class PurchaseOrderNosResource extends Resource
              ->schema([
             Forms\Components\Grid::make(3)
                 ->schema([
-    
-                
+
+
                     TextInput::make('purchase_order_no')
                         ->label('Purchase Order Name')
-                        ->required(),
+
+                        ->rule(fn ($record) => Rule::unique('purchase_order_nos', 'purchase_order_no')->ignore($record))
+            ->validationMessages([
+                        'unique' => 'මෙම Purchase Order Name එක දැනටමත් system එකේ තියෙනවා.',
+                    ])
+                    ->required(),
                     Select::make('Supplier')
                         ->label('Supplier')
                         ->options(Supplier::pluck('Sup_Name', 'id'))
@@ -64,7 +70,7 @@ class PurchaseOrderNosResource extends Resource
                         ->label('Vote code')
                         ->options(Votes::pluck('vote_code', 'id'))
                         ->searchable()
-                        ->required() 
+                        ->required()
                         ->suffixAction(
                                 Forms\Components\Actions\Action::make('NewVotes')
                                     ->icon('heroicon-o-plus')
@@ -81,30 +87,25 @@ class PurchaseOrderNosResource extends Resource
                                     ->url(\App\Filament\Resources\EstablishmentResource::getUrl('create'))
                                     ->openUrlInNewTab()
                                             ),
-       
-]) ])   ;   
-        
+
+]) ])   ;
+
 }
- 
+
 
     public static function table(Table $table): Table
     {
         return $table
            ->columns([
-            Tables\Columns\TextColumn::make('id')
-            ->label('#')
-            ->sortable()
-            ->size('sm')
-            ->weight(FontWeight::Light) 
-            ->toggleable()
-            ->Searchable()
-            ->fontFamily(FontFamily::Sans), 
+            Tables\Columns\TextColumn::make('Index')
+                    ->rowIndex()
+                    ->label('Ser'),
             Tables\Columns\TextColumn::make('purchase_order_no')
             ->label('Item Name')
             ->sortable()
             ->size('sm')
             ->weight(FontWeight::Light)             // lighter font
-            ->fontFamily(FontFamily::Sans), 
+            ->fontFamily(FontFamily::Sans),
             ])
             ->filters([
                 //

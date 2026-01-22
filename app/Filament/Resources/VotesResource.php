@@ -11,6 +11,7 @@ use Filament\Support\Enums\FontFamily;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Illuminate\Validation\Rule;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,7 +23,7 @@ class VotesResource extends Resource
         protected static ?string $navigationGroup= 'Purchase Order';
 protected static ?int $navigationSort = 3;
 
-protected static ?string $policy = \App\Policies\VotesPolicy::class; 
+protected static ?string $policy = \App\Policies\VotesPolicy::class;
 protected static ?string $navigationIcon = 'heroicon-o-hand-thumb-up';
 public static function getNavigationBadge(): ?string
     {
@@ -34,7 +35,11 @@ public static function getNavigationBadge(): ?string
             ->schema([
                 TextInput::make('vote_code')
                     ->label('Vote Head')
-                    ->required(),
+                    ->rule(fn ($record) => Rule::unique('votes', 'vote_code')->ignore($record))
+            ->validationMessages([
+                'unique' => 'මෙම Vote Head එක දැනටමත් system එකේ තියෙනවා.',
+            ])
+            ->required(),
                 TextInput::make('description')
                     ->label('Description')
                     ->required(),
@@ -49,24 +54,24 @@ public static function getNavigationBadge(): ?string
             ->label('#')
             ->sortable()
             ->size('sm')
-            ->weight(FontWeight::Light) 
+            ->weight(FontWeight::Light)
             ->toggleable()
-            ->fontFamily(FontFamily::Mono), 
+            ->fontFamily(FontFamily::Mono),
 
             Tables\Columns\TextColumn::make('vote_code')
             ->label('Vote Head')
             ->sortable()
             ->searchable(isIndividual:true,isGlobal:false)
             ->size('xs')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             Tables\Columns\TextColumn::make('description')
                 ->label('Description')
                 ->size('xs')
-                ->weight(FontWeight::Light)             
+                ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans),
-              
-           
+
+
             ])
             ->filters([
                 //

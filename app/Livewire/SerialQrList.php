@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\serial_numbers;
+use App\Models\SerialNumbers;
 use Livewire\Component;
 
 class SerialQrList extends Component
@@ -15,11 +16,11 @@ class SerialQrList extends Component
     $this->itemId = $itemId;
 
     if ($this->itemId) {
-        $this->serialNumbers = serial_numbers::with([
+        $this->serialNumbers = SerialNumbers::with([
             'item',         // relation to Item model for item_name, warranty_expiry_date
             'signalUnit',   // relation to SignalUnit model for signal_unit_name
             'IssuePlace'    // relation to IssuePlace model for issue_place_name
-        ])->where('recive_items_id', $this->itemId)->get();
+        ])->where('serial_id', $this->itemId)->get();
     } else {
         $this->serialNumbers = collect();
     }

@@ -11,6 +11,7 @@ use Filament\Support\Enums\FontFamily;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Form;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Gate;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -21,7 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class EstablishmentResource extends Resource
 {
     protected static ?string $model = Establishment::class;
-    protected static ?string $policy = \App\Policies\EstablishmentPolicy::class;   
+    protected static ?string $policy = \App\Policies\EstablishmentPolicy::class;
     protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
     protected static ?int $navigationSort = 4;
      protected static ?string $navigationGroup= 'Purchase Order';
@@ -31,6 +32,10 @@ class EstablishmentResource extends Resource
             ->schema([
                 TextInput::make('establishment')
                     ->label('Establishment')
+                    ->rule(fn ($record) => Rule::unique('establishments', 'establishment')->ignore($record))
+            ->validationMessages([
+                'unique' => 'මෙම establishment එක දැනටමත් system එකේ තියෙනවා.',
+            ])
                     ->required(),
                 TextInput::make('establishment_details')
                     ->label('Details')
@@ -42,28 +47,23 @@ class EstablishmentResource extends Resource
     {
         return $table
             ->columns([
-            
-        Tables\Columns\TextColumn::make('id')
-            ->label('#')
-            ->sortable()
-            ->size('sm')
-            ->weight(FontWeight::Light) 
-            ->toggleable()
-            ->fontFamily(FontFamily::Mono), 
 
+        Tables\Columns\TextColumn::make('Index')
+                    ->rowIndex()
+                    ->label('Ser'),
         Tables\Columns\TextColumn::make('establishment')
             ->label('Establishment Name')
             ->sortable()
             ->searchable(isIndividual:true,isGlobal:false)
             ->size('xs')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
         Tables\Columns\TextColumn::make('establishment_details')
             ->label('Details')
             ->size('xs')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
-            
+
             ])
             ->filters([
                 //

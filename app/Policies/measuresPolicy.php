@@ -1,12 +1,11 @@
 <?php
-
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\measures;
+use App\Models\Measures;
 use Illuminate\Auth\Access\Response;
 
-class measuresPolicy
+class MeasuresPolicy
 {
     /**
      * Determine whether the user can view any models.
@@ -19,7 +18,7 @@ class measuresPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, measures $measures): bool
+    public function view(User $user, Measures $measures): bool
     {
         return $user->hasRole('super_admin') || $user->can('measures View');
     }
@@ -35,22 +34,22 @@ class measuresPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, measures $measures): bool
+    public function update(User $user, Measures $measures): bool
     {
-         return $user->hasRole('super_admin') || $user->can('measures Update');
+         return $user->hasRole('super_admin') || $user->can('measures Update') || $user->can('measures Edit');
     }
-  public function edit(User $user, measures $measures): bool
+  public function edit(User $user, Measures $measures): bool
     {
         return $user->hasRole('super_admin') || $user->can('measures Edit');
     }
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, measures $measures): bool
+    public function delete(User $user, Measures $measures): bool
     {
     return $user->hasRole('super_admin') || $user->can('measures Delete');
     }
 
-   
-   
+
+
 }

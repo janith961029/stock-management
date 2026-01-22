@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Policies;
 
 use App\Models\IssuingType;
@@ -37,7 +36,7 @@ class IssuingTypePolicy
      */
     public function update(User $user, IssuingType $issuingType): bool
     {
-       return $user->hasRole('super_admin') || $user->can('IssuingType Update');
+       return $user->hasRole('super_admin') || $user->can('IssuingType Update') || $user->can('IssuingType Edit');
     }
 
     /**
@@ -56,5 +55,5 @@ class IssuingTypePolicy
     /**
      * Determine whether the user can restore the model.
      */
-   
+
 }

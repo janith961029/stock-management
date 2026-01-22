@@ -13,7 +13,7 @@ class EquipmentTypesPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('super_admin') || $user->can('EquipmentTypes List');
+        return  $user->can('EquipmentTypes List');
     }
 
     /**
@@ -21,7 +21,7 @@ class EquipmentTypesPolicy
      */
     public function view(User $user, EquipmentTypes $equipmentTypes): bool
     {
-        return $user->hasRole('super_admin') || $user->can('EquipmentTypes View');
+        return  $user->can('EquipmentTypes View');
     }
 
     /**
@@ -29,7 +29,7 @@ class EquipmentTypesPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasRole('super_admin') || $user->can('EquipmentTypes Create');
+        return  $user->can('EquipmentTypes Create');
     }
 
     /**
@@ -37,20 +37,20 @@ class EquipmentTypesPolicy
      */
     public function update(User $user, EquipmentTypes $equipmentTypes): bool
     {
-        return $user->hasRole('super_admin') || $user->can('EquipmentTypes Update');
+        return  $user->can('EquipmentTypes Update') || $user->can('EquipmentTypes Edit');
     }
     public function edit(User $user, EquipmentTypes $equipmentTypes): bool
     {
-        return $user->hasRole('super_admin') || $user->can('EquipmentTypes Edit');
+        return  $user->can('EquipmentTypes Edit');
     }
     /**
      * Determine whether the user can delete the model.
      */
     public function delete(User $user, EquipmentTypes $equipmentTypes): bool
     {
-        return $user->hasRole('super_admin') || $user->can('EquipmentTypes Delete');
+        return  $user->can('EquipmentTypes Delete');
     }
 
-    
-    
+
+
 }

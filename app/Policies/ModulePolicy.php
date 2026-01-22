@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Policies;
 
 use App\Models\Module;
@@ -43,7 +42,7 @@ class ModulePolicy
      */
     public function update(User $user, Module $permission): bool
     {
-        return $user->hasRole('super_admin') || $user->can('Module Update');
+        return $user->hasRole('super_admin') || $user->can('Module Update') || $user->can('Module Edit');
     }
 
     /**

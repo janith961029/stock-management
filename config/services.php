@@ -17,7 +17,16 @@ return [
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],
-
+    'eportal' => [
+        'api_key' => env('EPORTAL_API_KEY'),
+        'superadmin_enos' => array_filter(array_map(
+            'trim',
+            explode(',', env('EPORTAL_SUPERADMIN_ENOS', '100241271'))
+        )),
+    ],
+    'str' => [
+        'token' => env('STR_API_TOKEN', '1189d8dde195a36a9c4a721a390a74e6'),
+    ],
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),

@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Support\Enums\FontFamily;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
+use Illuminate\Validation\Rule;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -21,7 +22,7 @@ class EquipmentTypesResource extends Resource
 {
     protected static ?string $model = EquipmentTypes::class;
     protected static ?string $navigationGroup= 'Master Data';
-
+protected static ?string $policy = \App\Policies\EquipmentTypesPolicy::class;
     protected static ?string $navigationIcon = 'heroicon-o-cpu-chip';
      public static function getNavigationBadge(): ?string
     {
@@ -29,43 +30,48 @@ class EquipmentTypesResource extends Resource
     }
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-              
-                TextInput::make('type_code')
-                    ->label('Type Code')
-                    ->required(),
-                TextInput::make('equipment_name')
-                    ->label('Equipment Name')
-                    ->required(),
-            ]);
+         return $form->schema([
+        TextInput::make('type_code')
+            ->label('Type Code')
+            ->required()
+            ->maxLength(50)
+            ->rule(fn ($record) => Rule::unique('equipment_types', 'type_code')->ignore($record))
+            ->validationMessages([
+                'unique' => 'මෙම Type Code එක දැනටමත් system එකේ තියෙනවා.',
+            ]),
+
+        TextInput::make('equipment_name')
+            ->label('Equipment Name')
+            ->required()
+            ->maxLength(255)
+            ->rule(fn ($record) => Rule::unique('equipment_types', 'equipment_name')->ignore($record))
+            ->validationMessages([
+                'unique' => 'මෙම Equipment Name එක දැනටමත් system එකේ තියෙනවා.',
+            ]),
+    ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-            Tables\Columns\TextColumn::make('id')
-            ->label('#')
-            ->sortable()
-            ->size('sm')
-            ->weight(FontWeight::Light) 
-            ->toggleable()
-            ->fontFamily(FontFamily::Mono), 
+             Tables\Columns\TextColumn::make('Index')
+                    ->rowIndex()
+                    ->label('Ser'),
 
             Tables\Columns\TextColumn::make('type_code')
             ->label('Type Code')
             ->sortable()
             ->size('xs')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             Tables\Columns\TextColumn::make('equipment_name')
                 ->label('Equipment Name')
                 ->size('xs')
-                ->weight(FontWeight::Light)             
+                ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans),
-              
-           
+
+
             ])
             ->filters([
                 //

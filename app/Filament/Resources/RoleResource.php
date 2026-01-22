@@ -24,13 +24,14 @@ use Filament\Forms\Components\Markdown; // Use Markdown component
 use Filament\Forms\Components\HTML; // Use HTML component
 use Filament\Forms\Components\TextArea; // Use TextArea for plain text output
 use Filament\Forms\Components\Section;
+use Illuminate\Validation\Rule;
 use Filament\Tables\Filters\TrashedFilter;
 
 
 class RoleResource extends Resource
 {
     protected static ?string $model = Role::class;
-protected static ?string $policy = \App\Policies\RolePolicy::class; 
+protected static ?string $policy = \App\Policies\RolePolicy::class;
     protected static ?string $navigationIcon = 'heroicon-o-finger-print';
     protected static ?int $navigationSort = 2;
     protected static ?string $navigationGroup = 'User Management';
@@ -43,6 +44,11 @@ protected static ?string $policy = \App\Policies\RolePolicy::class;
                     TextInput::make('name')
                         ->minLength(2)
                         ->maxLength(255)
+                        ->label('Role Name')
+                        ->rule(fn ($record) => Rule::unique('roles', 'name')->ignore($record))
+            ->validationMessages([
+                'unique' => 'මෙම Role Name එක දැනටමත් system එකේ තියෙනවා.',
+            ])
                         ->unique(ignoreRecord: true)
                         ->required(),
 
@@ -128,6 +134,6 @@ protected static ?string $policy = \App\Policies\RolePolicy::class;
 
 
 
- 
+
 
 }

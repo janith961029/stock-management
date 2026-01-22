@@ -18,11 +18,10 @@ class IssuedSerialNumbersExport implements FromCollection, WithHeadings
     public function collection()
     {
         return DB::table('serial_numbers as sn')
-            ->leftJoin('recive_items as ri', 'sn.recive_items_id', '=', 'ri.id')
-            ->leftJoin('items as i', 'ri.items_id', '=', 'i.id')
+            ->leftJoin('recive_items as ri', 'sn.serial_id', '=', 'ri.id')
             ->leftJoin('signal_units as su', 'sn.signal_unit', '=', 'su.id')
             ->leftJoin('issue_places as ip', 'sn.issue_place', '=', 'ip.id')
-            ->where('sn.recive_items_id', $this->reciveItemId) // <-- හරි variable එක දැන් use කරනවා
+            ->where('sn.serial_id', $this->reciveItemId) // <-- හරි variable එක දැන් use කරනවා
             ->where('sn.issued', 1)
             ->select(
                 'sn.serial_number',

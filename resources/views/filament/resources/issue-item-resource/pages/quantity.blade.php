@@ -97,10 +97,13 @@
     
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
+                                {{ $serial->issuing_type?? 'N/A' }}
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
                                 {{ $serial->signal_unit_name ?? 'N/A' }}
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
-                                {{ $serial->issue_place_name ?? 'N/A' }}
+                                {{ $serial->issue_place ?? 'N/A' }}
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
                                 {{ $serial->warrenty_expiry_date ? \Carbon\Carbon::parse($serial->warrenty_expiry_date)->format('M d, Y') : 'N/A' }}

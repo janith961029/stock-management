@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Policies;
 
 use App\Models\User;
@@ -34,7 +33,7 @@ class VotesPolicy
         return $user->hasRole('super_admin') || $user->can('Votes Create');
     }
 
-    public function edit(User $user): bool
+    public function edit(User $user, Votes $votes): bool
     {
         return $user->hasRole('super_admin') || $user->can('Votes Edit');
     }
@@ -45,7 +44,7 @@ class VotesPolicy
      */
     public function update(User $user, Votes $votes): bool
     {
-        return $user->hasRole('super_admin') || $user->can('Votes Update');
+        return $user->hasRole('super_admin') || $user->can('Votes Update') || $user->can('Votes Edit') || $user->can('Votes Edit');
     }
 
     /**

@@ -7,6 +7,7 @@ use App\Filament\Resources\IssuePlacesResource\RelationManagers;
 use App\Models\IssuePlaces;
 use ArielMejiaDev\FilamentPrintable\Actions\PrintBulkAction;
 use Filament\Forms;
+use Illuminate\Validation\Rule;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
@@ -22,6 +23,7 @@ class IssuePlacesResource extends Resource
 {
     protected static ?string $model = IssuePlaces::class;
 protected static ?string $navigationGroup= 'Master Data';
+protected static ?string $policy = \App\Policies\IssuePlacesPolicy::class;
     protected static ?string $navigationIcon = 'heroicon-o-building-library';
     public static function getNavigationBadge(): ?string
     {
@@ -33,13 +35,18 @@ protected static ?string $navigationGroup= 'Master Data';
             ->schema([
                 TextInput::make('issue_place')
                     ->label('Issue Place')
+                    ->rule(fn ($record) => Rule::unique('issue_places', 'issue_place')->ignore($record))
+            ->validationMessages([
+                'unique' => 'මෙම Issue Place එක දැනටමත් system එකේ තියෙනවා.',
+            ])
                     ->required(),
                 TextInput::make('place_discription')
                     ->label('Place Discription')
+
                     ->required(),
-                Toggle::make('is_q5_unit')
-                  ->label('Q5?')
-                  ->required(),
+                // Toggle::make('is_q5_unit')
+                //   ->label('Q5?')
+                //   ->required(),
             ]);
     }
 
@@ -47,25 +54,21 @@ protected static ?string $navigationGroup= 'Master Data';
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-            ->label('#')
-            ->sortable()
-            ->size('sm')
-            ->weight(FontWeight::Light) 
-            ->toggleable()
-            ->fontFamily(FontFamily::Mono), 
+                Tables\Columns\TextColumn::make('Index')
+                    ->rowIndex()
+                    ->label('Ser'),
 
             Tables\Columns\TextColumn::make('issue_place')
             ->label('Issue Place')
             ->sortable()
             ->size('xs')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
              Tables\Columns\TextColumn::make('place_discription')
             ->label('Place Discription')
             ->sortable()
             ->size('xs')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             ])
             ->filters([

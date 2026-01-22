@@ -13,18 +13,26 @@ use Filament\Resources\Resource;
 use Filament\Support\Enums\FontFamily;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
+use Illuminate\Validation\Rule;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Facades\Filament;
 
 class IctCategoriesResource extends Resource
 {
     protected static ?string $model = IctCategories::class;
+    protected static ?string $policy = \App\Policies\IctCategoriesPolicy::class;
     protected static ?string $navigationGroup= 'Master Data';
     protected static ?string $navigationIcon = 'heroicon-o-squares-plus';
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();
+    }
+
+    public static function canViewAny(): bool
+    {
+        return Filament::auth()->user()?->can('IctCategories List') ?? false;
     }
     public static function form(Form $form): Form
     {
@@ -32,8 +40,12 @@ class IctCategoriesResource extends Resource
             ->schema([
                 TextInput::make('ictcategories_name')
                     ->label('Ict Categories')
+                    ->rule(fn ($record) => Rule::unique('ictcategories', 'ictcategories_name')->ignore($record))
+            ->validationMessages([
+                'unique' => 'මෙම Ict Categories එක දැනටමත් system එකේ තියෙනවා.',
+            ])
                     ->required(),
-                
+
             ]);
     }
 
@@ -41,23 +53,19 @@ class IctCategoriesResource extends Resource
     {
         return $table
             ->columns([
-                 
-            Tables\Columns\TextColumn::make('id')
-            ->label('#')
-            ->sortable()
-            ->size('sm')
-            ->weight(FontWeight::Light) 
-            ->toggleable()
-            ->fontFamily(FontFamily::Mono), 
+
+          Tables\Columns\TextColumn::make('Index')
+                    ->rowIndex()
+                    ->label('Ser'),
 
             Tables\Columns\TextColumn::make('ictcategories_name')
             ->label('ICT Categories')
             ->sortable()
             ->size('xs')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
-           
-              
+
+
             ])
             ->filters([
                 //

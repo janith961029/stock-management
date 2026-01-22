@@ -15,12 +15,14 @@ use Filament\Support\Enums\FontFamily;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Validation\Rule;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SignalUnitResource extends Resource
 {
     protected static ?string $model = SignalUnit::class;
+    protected static ?string $policy = \App\Policies\SignalUnitPolicy::class;
 protected static ?string $navigationGroup= 'Master Data';
     protected static ?string $navigationIcon = 'heroicon-o-shield-check';
      public static function getNavigationBadge(): ?string
@@ -33,7 +35,11 @@ protected static ?string $navigationGroup= 'Master Data';
             ->schema([
                    TextInput::make('sig_unit_name')
                     ->label('Signal Unit')
-                    ->required(),
+                    ->rule(fn ($record) => Rule::unique('signal_units', 'sig_unit_name')->ignore($record))
+            ->validationMessages([
+                'unique' => 'මෙම Signal Unit එක දැනටමත් system එකේ තියෙනවා.',
+            ])
+            ->required(),
                 Toggle::make('is_q5_unit')
                   ->label('Q5?')
                   ->required(),
@@ -44,19 +50,15 @@ protected static ?string $navigationGroup= 'Master Data';
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-            ->label('#')
-            ->sortable()
-            ->size('sm')
-            ->weight(FontWeight::Light) 
-            ->toggleable()
-            ->fontFamily(FontFamily::Mono), 
+                Tables\Columns\TextColumn::make('Index')
+                    ->rowIndex()
+                    ->label('Ser'),
 
             Tables\Columns\TextColumn::make('sig_unit_name')
             ->label('Signal Unit')
             ->sortable()
             ->size('xs')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             ])
             ->filters([

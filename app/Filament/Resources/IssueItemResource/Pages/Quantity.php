@@ -29,26 +29,26 @@ class Quantity extends Page
 
     public function getViewData(): array
     {
-        $itemid = $this->record->items_id;
+        $itemid = $this->record->recive_items_id;
 
         // Get counts
-        $totalCount = DB::table('items')
-            ->join('recive_items', 'items.id', '=', 'recive_items.items_id')
-            ->join('serial_numbers', 'recive_items.id', '=', 'serial_numbers.recive_items_id')
-            ->where('items.id', $itemid)
-            ->count('serial_numbers.id');
+       $totalCount = DB::table('items')
+    ->join('recive_items', 'recive_items.recive_items_id', '=', 'items.id')
+    ->join('serial_numbers', 'serial_numbers.serial_id', '=', 'recive_items.id')
+    ->where('items.id', $itemid)
+    ->count('serial_numbers.id');
 
         $receivedCount = DB::table('items')
-            ->join('recive_items', 'items.id', '=', 'recive_items.items_id')
-            ->join('serial_numbers', 'recive_items.id', '=', 'serial_numbers.recive_items_id')
-            ->where('items.id', $itemid)
+            ->join('recive_items', 'recive_items.recive_items_id', '=', 'items.id')
+    ->join('serial_numbers', 'serial_numbers.serial_id', '=', 'recive_items.id')
+    ->where('items.id', $itemid)
             ->where('serial_numbers.recieved', 1)
             ->count('serial_numbers.id');
 
         $issuedCount = DB::table('items')
-            ->join('recive_items', 'items.id', '=', 'recive_items.items_id')
-            ->join('serial_numbers', 'recive_items.id', '=', 'serial_numbers.recive_items_id')
-            ->where('items.id', $itemid)
+           ->join('recive_items', 'recive_items.recive_items_id', '=', 'items.id')
+    ->join('serial_numbers', 'serial_numbers.serial_id', '=', 'recive_items.id')
+    ->where('items.id', $itemid)
             ->where('serial_numbers.issued', 1)
             ->count('serial_numbers.id');
 
@@ -56,11 +56,11 @@ class Quantity extends Page
 
         // Get serial numbers
       $serialNumbers = DB::table('serial_numbers as sn')
-    ->leftJoin('recive_items as ri', 'sn.recive_items_id', '=', 'ri.id')
-    ->leftJoin('items as it', 'ri.items_id', '=', 'it.id')
+    ->leftJoin('recive_items as ri', 'sn.serial_id', '=', 'ri.id')
+    ->leftJoin('items as it', 'ri.recive_items_id', '=', 'it.id')
     ->leftJoin('signal_units as su', 'sn.signal_unit', '=', 'su.id')
     ->leftJoin('issue_places as ip', 'sn.issue_place', '=', 'ip.id')
-    ->where('ri.items_id', $itemid)
+    ->where('ri.recive_items_id', $itemid)
     ->select(
         'sn.serial_number',
         'sn.barcode',

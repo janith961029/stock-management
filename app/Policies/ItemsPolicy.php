@@ -12,43 +12,36 @@ class ItemsPolicy
 
    public function viewAny(User $user): bool
 {
-    return $user->hasRole('super_admin') 
-        || $user->can('Items List') 
-        || $user->can('RecieveItems List');
+    return $user->hasRole('super_admin') || $user->can('Items List');
 }
 
 public function view(User $user, Items $items): bool
 {
-    return $user->hasRole('super_admin') 
-        || $user->can('Items View') 
-        || $user->can('RecieveItems View');
+    return $user->hasRole('super_admin')
+        || $user->can('Items View');
 }
 
 public function create(User $user): bool
 {
-    return $user->hasRole('super_admin') 
-        || $user->can('Items Create') 
-        || $user->can('RecieveItems Create');
+    return $user->hasRole('super_admin')
+        || $user->can('Items Create');
 }
 
 public function update(User $user, Items $items): bool
 {
-    return $user->hasRole('super_admin') 
-        || $user->can('Items Update') 
-        || $user->can('RecieveItems Update');
+    return $user->hasRole('super_admin')
+        || $user->can('Items Update') || $user->can('Items Edit');
 }
 
 public function delete(User $user, Items $items): bool
 {
-    return $user->hasRole('super_admin') 
-        || $user->can('Items Delete') 
-        || $user->can('RecieveItems Delete');
+    return $user->hasRole('super_admin')
+        || $user->can('Items Delete');
 }
 
 public function edit(User $user, Items $items): bool
 {
-    return $user->hasRole('super_admin') 
-        || $user->can('Items Edit') 
-        || $user->can('RecieveItems Edit');
+    return $user->hasRole('super_admin')
+        || $user->can('Items Edit');
 }
 }

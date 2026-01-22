@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Policies;
 
 use App\Models\SignalUnit;
@@ -37,7 +36,7 @@ class SignalUnitPolicy
      */
     public function update(User $user, SignalUnit $signalUnit): bool
     {
-      return $user->hasRole('super_admin') || $user->can('SignalUnit Update');
+      return $user->hasRole('super_admin') || $user->can('SignalUnit Update') || $user->can('SignalUnit Edit');
     }
     public function edit(User $user, SignalUnit $signalUnit): bool
     {
@@ -52,5 +51,5 @@ class SignalUnitPolicy
        return $user->hasRole('super_admin') || $user->can('SignalUnit Delete');
     }
 
-    
+
 }

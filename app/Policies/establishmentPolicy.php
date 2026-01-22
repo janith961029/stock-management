@@ -15,7 +15,7 @@ class EstablishmentPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('super_admin') || $user->can('Establishment List');
+        return $user->can('Establishment List');
     }
 
     /**
@@ -23,31 +23,31 @@ class EstablishmentPolicy
      */
     public function view(User $user, Establishment $establishment): bool
     {
-        return $user->hasRole('super_admin') || $user->can('Establishment View');
+        return $user->can('Establishment View');
     }
 
     public function create(User $user): bool
     {
-        return $user->hasRole('super_admin') || $user->can('Establishment Create');
+        return  $user->can('Establishment Create');
     }
 
-    
+
     public function update(User $user, Establishment $establishment): bool
     {
-        return $user->hasRole('super_admin') || $user->can('Establishment Update');
+        return  $user->can('Establishment Update') || $user->can('Establishment Edit');
     }
 
-  
+
     public function edit(User $user, Establishment $establishment): bool
     {
-        return $user->hasRole('super_admin') || $user->can('Establishment Edit');
+        return  $user->can('Establishment Edit');
     }
 
- 
+
     public function delete(User $user): bool
     {
-        return $user->hasRole('super_admin') || $user->can('Establishment Delete');
+        return  $user->can('Establishment Delete');
     }
 
-    
+
 }

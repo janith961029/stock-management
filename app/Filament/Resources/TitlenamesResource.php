@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Support\Enums\FontFamily;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
+use Illuminate\Validation\Rule;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -25,6 +26,7 @@ use function Livewire\store;
 class TitlenamesResource extends Resource
 {
     protected static ?string $model = Titlenames::class;
+    protected static ?string $policy = \App\Policies\TitlenamesPolicy::class;
  public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();
@@ -36,16 +38,19 @@ class TitlenamesResource extends Resource
     {
         return $form
             ->schema([
-               TextInput::make('ttle_no')
-                    ->label('Title Name')
+               TextInput::make('title_name')
+                    ->label('Title Names')
+                    ->rule(fn ($record) => Rule::unique('titlenames', 'title_name')->ignore($record))
+            ->validationMessages([
+                    'unique' => 'මෙම Title Name එක දැනටමත් system එකේ තියෙනවා.',
+                ])
                     ->required(),
-
 
 
                  Select::make('relevant_store_id')
                     ->options(Store::pluck('stores', 'id'))
                     ->label('Relevant Store')
-                    ->live() 
+                    ->live()
                     ->required()
                     ->reactive()
                     ->afterStateUpdated(fn (Forms\Set $set) => $set('title_name', null)),
@@ -58,24 +63,20 @@ class TitlenamesResource extends Resource
             ->columns([
 
 
-                Tables\Columns\TextColumn::make('id')
-            ->label('#')
-            ->sortable()
-            ->size('sm')
-            ->weight(FontWeight::Light) 
-            ->toggleable()
-            ->fontFamily(FontFamily::Mono), 
+                 Tables\Columns\TextColumn::make('Index')
+                    ->rowIndex()
+                    ->label('Ser'),
             Tables\Columns\TextColumn::make('stores.stores')
             ->label('Stores')
             ->sortable()
             ->size('xs')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             Tables\Columns\TextColumn::make('title_name')
             ->label('Stores')
             ->sortable()
             ->size('xs')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             ])
             ->filters([

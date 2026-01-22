@@ -15,6 +15,10 @@ return [
         'driver' => 'session',
         'provider' => 'admins',
     ],
+    'filament' => [
+        'driver' => 'session',
+        'provider' => 'api_users',
+    ],
 ],
 
 'providers' => [
@@ -25,6 +29,9 @@ return [
     'admins' => [
         'driver' => 'eloquent',
         'model' => App\Models\Admin::class,
+    ],
+    'api_users' => [
+        'driver' => 'api_session',
     ],
 ],
 

@@ -4,12 +4,12 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ItemsResource\Pages;
 use App\Filament\Resources\ItemsResource\RelationManagers;
-use ArielMejiaDev\FilamentPrintable\Actions\PrintAction;
-use ArielMejiaDev\FilamentPrintable\Actions\PrintBulkAction;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
+use Filament\Tables;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Support\Enums\FontWeight;
@@ -20,14 +20,13 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Forms;
 use App\Models\countries;
-use Filament\Tables\Actions\Action;
-use Filament\Tables;
 use App\Models\IctCategories;
-use App\Models\titlenames;
+use App\Models\Titlenames;
 use App\Models\Store;
-use App\Models\measures;
+use App\Models\Measures;
 use App\Models\Items;
 use App\Models\EquipmentTypes;
+use Filament\Facades\Filament;
 
 
 class ItemsResource extends Resource
@@ -35,17 +34,19 @@ class ItemsResource extends Resource
     protected static ?string $model =Items::class;
     protected static ?string $modelLabel='Items';
     protected static ?string $policy = \App\Policies\ItemsPolicy::class; 
+//  protected static ?string $navigationIcon = 'heroicon-o-rectangle-group'; 
 
-   // protected static ?string $navigationIcon = 'heroicon-o-rectangle-group'; 
 
-
-   //public static function getNavigationBadge(): ?string
-  //{
-//   return static::getModel()::whereNull('total_quantity')
-//     ->orWhere('total_quantity', '')
-//       ->count();
-//}
-
+//  public static function getNavigationBadge(): ?string
+//     {
+//      return static::getModel()::whereNull('total_quantity')
+//      ->orWhere('total_quantity', '')
+//      ->count();
+//      }
+    public static function canAccess(): bool
+    {
+        return Filament::auth()->user()?->can('Items List') ?? false;
+    }
     protected static ?string $navigationGroup= 'Items';
     protected static ?int $navigationSort = 1;
     protected static ?string $recordTitleAttribute = 'item_code';
@@ -90,14 +91,14 @@ class ItemsResource extends Resource
 //Title Name
                 Select::make('title_names_id')
                     ->label('Title Name')
-                    ->options(titlenames::pluck('title_name', 'id'))
+                    ->options(Titlenames::pluck('title_name', 'id'))
                     ->placeholder(fn(Forms\Get $get) =>
                        empty($get('relevant_store_id'))
                         ? 'First select Store'
                         : 'Select Title Name'
                     )
                 ->options(fn (Forms\Get $get) => 
-                    titlenames::where('relevant_store_id', $get('relevant_store_id'))
+                    Titlenames::where('relevant_store_id', $get('relevant_store_id'))
                         ->pluck('title_name', 'title_name'))
                 ->required(),
 
@@ -126,7 +127,7 @@ class ItemsResource extends Resource
             ->schema([
                 Select::make('unit_of_issue_id')
                     ->label('Unit Of Issue')
-                    ->options(measures::pluck('measures_name', 'id'))
+                    ->options(Measures::pluck('measures_name', 'id'))
                     ->searchable()->required()
                     ->required(),
 
@@ -192,8 +193,7 @@ class ItemsResource extends Resource
              ->size('xs')
              ->weight(FontWeight::Light)             
              ->fontFamily(FontFamily::Sans)
-             ->searchable(isIndividual:true,isGlobal:false)
-             ->toggleable(isToggledHiddenByDefault:true),
+             ->searchable(isIndividual:true,isGlobal:false),
              
         Tables\Columns\TextColumn::make('title_names_id')
              ->label('Title Name')
@@ -204,7 +204,7 @@ class ItemsResource extends Resource
              ,
             ])
             ->filters([
-                //
+               
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()->iconButton()->color('success'),
@@ -230,7 +230,7 @@ class ItemsResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            
         ];
     }
 

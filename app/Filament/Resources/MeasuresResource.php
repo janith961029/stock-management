@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Support\Enums\FontFamily;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
+use Illuminate\Validation\Rule;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -20,7 +21,9 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class MeasuresResource extends Resource
 {
     protected static ?string $model = Measures::class;
+
     protected static ?string $navigationGroup= 'Master Data';
+    protected static ?string $policy = \App\Policies\MeasuresPolicy::class;
     protected static ?string $navigationIcon = 'heroicon-o-viewfinder-circle';
      public static function getNavigationBadge(): ?string
     {
@@ -32,8 +35,12 @@ class MeasuresResource extends Resource
             ->schema([
                TextInput::make('measures_code')
                     ->label('Measures Code')
+                    ->rule(fn ($record) => Rule::unique('measures', 'measures_code')->ignore($record))
+            ->validationMessages([
+                'unique' => 'මෙම Measures Code එක දැනටමත් system එකේ තියෙනවා.',
+            ])
                     ->required(),
-                TextInput::make('measures name')
+                TextInput::make('measures_name')
                     ->label('Measures Name')
                     ->required(),
             ]);
@@ -43,26 +50,22 @@ class MeasuresResource extends Resource
     {
         return $table
             ->columns([
-                
-            Tables\Columns\TextColumn::make('id')
-            ->label('#')
-            ->sortable()
-            ->size('sm')
-            ->weight(FontWeight::Light) 
-            ->toggleable()
-            ->fontFamily(FontFamily::Mono), 
+
+            Tables\Columns\TextColumn::make('Index')
+                    ->rowIndex()
+                    ->label('Ser'),
 
             Tables\Columns\TextColumn::make('measures_code')
             ->label('Measures Code')
             ->sortable()
             ->size('xs')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             Tables\Columns\TextColumn::make('measures_name')
             ->label('Measures Name')
             ->sortable()
             ->size('xs')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             ])
             ->filters([

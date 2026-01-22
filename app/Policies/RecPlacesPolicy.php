@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Policies;
 
 use App\Models\RecPlaces;
@@ -37,7 +36,7 @@ class RecPlacesPolicy
      */
     public function update(User $user, RecPlaces $recPlaces): bool
     {
-        return $user->hasRole('super_admin') || $user->can('RecPlaces Update');
+        return $user->hasRole('super_admin') || $user->can('RecPlaces Update') || $user->can('RecPlaces Edit');
     }
 
     /**
@@ -54,5 +53,5 @@ class RecPlacesPolicy
     /**
      * Determine whether the user can restore the model.
      */
-   
+
 }

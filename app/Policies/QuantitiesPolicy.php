@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Policies;
 
 use App\Models\User;
@@ -21,7 +20,7 @@ class QuantitiesPolicy
     /**
      * Determine whether the user can view a quantity.
      */
-    public function view(User $user): bool
+    public function view(User $user,Quantities $quantities): bool
     {
         return $user->hasRole('super_admin') || $user->can('Quantity View');
     }
@@ -42,7 +41,7 @@ class QuantitiesPolicy
      */
     public function update(User $user,Quantities $quantities): bool
     {
-        return $user->hasRole('super_admin') || $user->can('Quantity Update');
+        return $user->hasRole('super_admin') || $user->can('Quantity Update') || $user->can('Quantity Edit');
     }
 
     /**
@@ -52,6 +51,6 @@ class QuantitiesPolicy
     {
         return $user->hasRole('super_admin') || $user->can('Quantity Delete');
     }
-   
+
 
 }

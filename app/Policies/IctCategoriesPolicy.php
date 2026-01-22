@@ -13,7 +13,7 @@ class IctCategoriesPolicy
      */
     public function viewAny(User $user): bool
     {
-         return $user->hasRole('super_admin') || $user->can('IctCategories List');
+         return  $user->can('IctCategories List');
     }
 
     /**
@@ -21,7 +21,7 @@ class IctCategoriesPolicy
      */
     public function view(User $user, IctCategories $ictCategories): bool
     {
-        return $user->hasRole('super_admin') || $user->can('IctCategories View');
+        return $user->can('IctCategories View');
     }
 
     /**
@@ -29,7 +29,7 @@ class IctCategoriesPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasRole('super_admin') || $user->can('IctCategories Create');
+        return $user->can('IctCategories Create');
     }
 
     /**
@@ -37,21 +37,21 @@ class IctCategoriesPolicy
      */
     public function update(User $user, IctCategories $ictCategories): bool
     {
-         return $user->hasRole('super_admin') || $user->can('IctCategories Update');
+         return  $user->can('IctCategories Update') || $user->can('IctCategories Edit');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    
+
 public function edit(User $user, IctCategories $ictCategories): bool
     {
-        return $user->hasRole('super_admin') || $user->can('IctCategories Edit');
+        return  $user->can('IctCategories Edit');
     }
 
     public function delete(User $user, IctCategories $ictCategories): bool
     {
-        return $user->hasRole('super_admin') || $user->can('IctCategories Delete');
+        return  $user->can('IctCategories Delete');
     }
-    
+
 }

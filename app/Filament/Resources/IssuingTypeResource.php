@@ -9,6 +9,7 @@ use ArielMejiaDev\FilamentPrintable\Actions\PrintBulkAction;
 use Filament\Forms;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Illuminate\Validation\Rule;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\FontFamily;
 use Filament\Support\Enums\FontWeight;
@@ -21,6 +22,7 @@ class IssuingTypeResource extends Resource
 {
     protected static ?string $model = IssuingType::class;
     protected static ?string $navigationGroup= 'Master Data';
+    protected static ?string $policy = \App\Policies\IssuingTypePolicy::class;
     protected static ?string $navigationIcon = 'heroicon-o-plus';
      public static function getNavigationBadge(): ?string
     {
@@ -32,6 +34,10 @@ class IssuingTypeResource extends Resource
             ->schema([
                  TextInput::make('issuing_type')
                     ->label('Issue Type')
+                    ->rule(fn ($record) => Rule::unique('issuing_types', 'issuing_type')->ignore($record))
+            ->validationMessages([
+                'unique' => 'මෙම Issue Type එක දැනටමත් system එකේ තියෙනවා.',
+            ])
                     ->required(),
             ]);
     }
@@ -40,19 +46,15 @@ class IssuingTypeResource extends Resource
     {
         return $table
             ->columns([
-                   Tables\Columns\TextColumn::make('id')
-            ->label('#')
-            ->sortable()
-            ->size('sm')
-            ->weight(FontWeight::Light) 
-            ->toggleable()
-            ->fontFamily(FontFamily::Mono), 
+             Tables\Columns\TextColumn::make('Index')
+                    ->rowIndex()
+                    ->label('Ser'),
 
             Tables\Columns\TextColumn::make('issuing_type')
             ->label('Issue Type')
             ->sortable()
             ->size('xs')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             ])
             ->filters([

@@ -9,7 +9,7 @@ use App\Models\IssueItem;
 use App\Models\IssuePlaces;
 use App\Models\IssuingType;
 use App\Models\Quantities;
-use App\Models\serial_numbers;
+use App\Models\SerialNumbers;
 use App\Models\SignalUnit;
 use ArielMejiaDev\FilamentPrintable\Actions\PrintBulkAction;
 use DateTime;
@@ -25,17 +25,18 @@ use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\FontFamily;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Facades\Filament;
 
 use function Laravel\Prompts\select;
 
 class QuantityResource extends Resource
 
 { protected static ?string $navigationGroup= 'Summary';
-    public static function canViewAny(): bool
+public static function canViewAny(): bool
 {
-    return auth()->user()->hasPermissionTo('Quantity View');
+    return Filament::auth()->user()?->hasPermissionTo('Quantity View') ?? false;
 }
-protected static ?string $policy = \App\Policies\QuantitiesPolicy::class; 
+protected static ?string $policy = \App\Policies\QuantitiesPolicy::class;
     protected static ?string $model = Quantities::class;
   protected static ?int $navigationSort = 2;
   protected static ?string $navigationIcon = 'heroicon-o-rectangle-group';
@@ -65,45 +66,49 @@ protected static ?string $policy = \App\Policies\QuantitiesPolicy::class;
                 Select::make('issue_place')
                     ->options(IssuePlaces::pluck('issue_place', 'issue_place'))
                     ->label('Issue Place')
-                    ->live() 
+                    ->live()
                     ->required()
                     ->reactive(),
                 Select::make('signal_unit')
                     ->options(SignalUnit::pluck('sig_unit_name', 'id'))
                     ->label('Signal Unit')
-                    ->live() 
+                    ->live()
                     ->required()
                     ->reactive(),
                 Select::make('issuing_type')
                     ->options(IssuingType::pluck('issuing_type', 'id'))
                     ->label('Issue Type')
-                    ->live() 
+                    ->live()
                     ->required()
                     ->reactive(),
                 DatePicker::make('issue_date')
                     ->label('Issue Date'),
                 DatePicker::make('warrenty_expiry_date')
                     ->label('Warrenty Expiry Date'),
-                    
+
             ]);
-            
+
     }
 
     public static function table(Table $table): Table
     {
        return $table
-    ->query(function () {
-        $query = Quantities::query();
+    // ->query(function () {
+    //     $query = Quantities::query();
+    //     $user = Filament::auth()->user();
 
-        // Admin නොවන user ලාට තම signal unit එකේම data පමණක් පෙන්වන්න
-        if (! auth()->user()->hasAnyRole(['super_admin','panel_user','cso'])) {
-            $query->where('signal_unit', auth()->user()->signal_unit_id);
-        }
+    //     if (! $user) {
+    //         return $query;
+    //     }
 
-        return $query;
-    })
+    //     if (! $user->hasAnyRole(['super_admin', 'panel_user', 'cso'])) {
+    //         $query->where('signal_unit', $user->signal_unit_id);
+    //     }
+
+    //     return $query;
+    // })
            ->columns([
-            
+
 
     Tables\Columns\TextColumn::make('barcode')
     ->formatStateUsing(fn ($state) => str_replace('SN CODE : SN', '', $state)) // display only
@@ -126,59 +131,66 @@ protected static ?string $policy = \App\Policies\QuantitiesPolicy::class;
             ->label('Item Name')
             ->sortable()
             ->size('sm')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
-              
+           Tables\Columns\TextColumn::make('serial_number')
+
+            ->label('Serial Number')
+            ->sortable()
+            ->size('sm')
+            ->weight(FontWeight::Light)
+            ->fontFamily(FontFamily::Sans),
+
         Tables\Columns\TextColumn::make('issue_place')
-           
+
             ->label('Issue Place')
             ->sortable()
             ->size('sm')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
 
         Tables\Columns\TextColumn::make('issuing_type')
-          
+
             ->label('Issue Type')
             ->sortable()
             ->size('sm')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
      Tables\Columns\TextColumn::make('issue_date')
-            
+
             ->label('Issue Date')
             ->sortable()
             ->size('sm')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
 
          Tables\Columns\TextColumn::make('warrenty_expiry_date')
-         
+
             ->label('Warrenty')
             ->sortable()
             ->size('sm')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
 
         Tables\Columns\TextColumn::make('signal_unit')
-         
+
             ->label('Signal Unit')
             ->searchable(isIndividual:true,isGlobal:false)
             ->sortable()
             ->size('sm')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
-        
-            ]) 
+
+            ])
             ->filters([
-            
+
             ])
             ->headerActions([
     Tables\Actions\Action::make('go_to_custom_page')
         ->label('Scan Item')
         ->icon('heroicon-o-arrow-right')
-       ->url(QuantityResource::getUrl('scan')) 
-        ->openUrlInNewTab(), 
+       ->url(QuantityResource::getUrl('scan'))
+        ->openUrlInNewTab(),
 ])
             ->actions([
                 Tables\Actions\ViewAction::make()->iconButton()->color('success'),
@@ -204,7 +216,7 @@ protected static ?string $policy = \App\Policies\QuantitiesPolicy::class;
             'index' => Pages\ListQuantities::route('/'),
            'create' => Pages\CreateQuantity::route('/create'),
             'edit' => Pages\EditQuantity::route('/{record}/edit'),
-          'scan' => Pages\Scan::route('/scan'), 
+          'scan' => Pages\Scan::route('/scan'),
         ];
     }
 }

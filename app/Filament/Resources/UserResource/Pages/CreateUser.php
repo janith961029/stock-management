@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Resources\UserResource;
+use App\Models\Role;
 use Filament\Actions;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
@@ -10,7 +11,7 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateUser extends CreateRecord
 {
     protected static string $resource = UserResource::class;
-        protected function getCreatedNotification(): ?Notification
+    protected function getCreatedNotification(): ?Notification
     {
         return Notification::make()
         ->title('User')
@@ -28,5 +29,19 @@ class CreateUser extends CreateRecord
     {
         return $this->getResource()::getUrl('index');
     }
-}
 
+    protected function afterCreate(): void
+    {
+        $roleId = $this->data['role_id'] ?? null;
+
+        if (! $roleId) {
+            return;
+        }
+
+        $role = Role::find($roleId);
+
+        if ($role) {
+            $this->record->syncRoles([$role]);
+        }
+    }
+}

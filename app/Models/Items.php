@@ -12,6 +12,8 @@ use App\Models\EquipmentTypes;
 use App\Models\TitleNames;
 use App\Models\ReciveItems;
 
+use function Livewire\store;
+
 class Items extends Model
 {
     use HasFactory;
@@ -23,10 +25,10 @@ class Items extends Model
         'recieved' => 'array',
     ];
 
-    public function serial_numbers()
-    {
-        return $this->hasMany(serial_numbers::class);
-    }
+    // public function serial_numbers()
+    // {
+    //     return $this->hasMany(SerialNumbers::class);
+    // }
 
     public function signalUnit()
     {
@@ -40,9 +42,12 @@ class Items extends Model
 
     public function equipment_types()
     {
-        return $this->belongsTo(EquipmentTypes::class, 'equipment_types_id');
+        return $this->belongsTo(EquipmentTypes::class, 'equipment_types_id','id');
     }
-
+public function relevantstore()
+    {
+        return $this->belongsTo(Store::class, 'relevant_store_id','id');
+    }
     public function titlenames()
     {
         return $this->belongsTo(TitleNames::class, 'title_names_id');

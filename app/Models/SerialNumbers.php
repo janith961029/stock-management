@@ -7,12 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 
 
 
-class serial_numbers extends Model
+class SerialNumbers extends Model
 { use HasFactory;
+
+
     protected $guarded = [];
    public function item()
 {
-    return $this->belongsTo(Items::class,'items_id'); // foreign key = items.id
+    return $this->belongsTo(Items::class,'relevant_store_id'); // foreign key = items.id
 }
 
 
@@ -31,14 +33,40 @@ public function SignalUnit()
     {
         return $this->belongsTo(IssuingType::class, 'issuing_type');
     }
-    
+
    public function country()
     {
         return $this->belongsTo(countries::class, 'countries','name');
     }
-
+// app/Models/SerialNumbers.php
 public function recive_item()
 {
-    return $this->belongsTo(\App\Models\ReciveItems::class, 'recive_items_id', 'id');
+    return $this->belongsTo(\App\Models\Serial::class, 'serial_id', 'id');
 }
+public function issue_item()
+{
+    return $this->belongsTo(Items::class, 'title_names_id'); // wrong FK
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

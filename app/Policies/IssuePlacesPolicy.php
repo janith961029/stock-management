@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Policies;
 
 use App\Models\IssuePlaces;
@@ -23,7 +22,7 @@ class IssuePlacesPolicy
     {
         return $user->hasRole('super_admin') || $user->can('IssuePlaces View');
     }
-    
+
 
     /**
      * Determine whether the user can create models.
@@ -38,7 +37,7 @@ class IssuePlacesPolicy
      */
     public function update(User $user, IssuePlaces $issuePlaces): bool
     {
-          return $user->hasRole('super_admin') || $user->can('IssuePlaces Update');
+          return $user->hasRole('super_admin') || $user->can('IssuePlaces Update') || $user->can('IssuePlaces Edit') || $user->can('IssuePlaces Edit');
     }
     public function edit(User $user, IssuePlaces $issuePlaces): bool
     {
@@ -52,5 +51,5 @@ class IssuePlacesPolicy
          return $user->hasRole('super_admin') || $user->can('IssuePlaces Delete');
     }
 
-   
+
 }

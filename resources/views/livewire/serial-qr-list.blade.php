@@ -82,11 +82,11 @@
     @foreach ($serialNumbers as $serial)
         @php
             $qrLines = [
-                "1. Serial Number: " . ($serial->serial_number ?? 'N/A'),
-                "2. Issue Place: " . ($serial->issue_place ?? 'N/A'),
-                "3. Issue Type: " . ($serial->issuing_type ?? 'N/A'),
-                "4. Signal Unit: " . ($serial->signal_unit ?? 'N/A'),
-                "5. Warranty Expiry Date: " . ($serial->recive_item->warranty_expiry_date ?? 'N/A'),
+                "SN CODE : " . ($serial->serial_number ?? 'N/A'),
+                // "2. Issue Place: " . ($serial->issue_place ?? 'N/A'),
+                // "3. Issue Type: " . ($serial->issuing_type ?? 'N/A'),
+                // "4. Signal Unit: " . ($serial->signal_unit ?? 'N/A'),
+                // "5. Warranty Expiry Date: " . ($serial->recive_item->warranty_expiry_date ?? 'N/A'),
             ];
             $qrText = implode("\n", $qrLines);
         @endphp
@@ -105,8 +105,8 @@
             </div>
         </div>
     @endforeach
-<button 
-    onclick="window.print()" 
+<button
+    onclick="window.print()"
     class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2">
     🖨 Print
 </button>

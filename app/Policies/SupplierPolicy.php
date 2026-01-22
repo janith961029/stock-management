@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Policies;
 
 use App\Models\User;
@@ -42,7 +41,7 @@ class SupplierPolicy
      */
     public function update(User $user, Supplier $supplier): bool
     {
-        return $user->hasRole('super_admin') || $user->can('Supplier Update');
+        return $user->hasRole('super_admin') || $user->can('Supplier Update') || $user->can('Supplier Edit');
     }
 
     /**
@@ -53,5 +52,5 @@ class SupplierPolicy
         return $user->hasRole('super_admin') || $user->can('Supplier Delete');
     }
 
-    
+
 }

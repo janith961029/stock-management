@@ -3,7 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\serial_numbers;
+use App\Models\SerialNumbers;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class SerialNumberPolicy
@@ -13,7 +13,7 @@ class SerialNumberPolicy
     /**
      * Determine whether the user can view a serial number.
      */
-    public function view(User $user, serial_numbers $serialNumber): bool
+    public function view(User $user, SerialNumbers $serialNumber): bool
     {
         return $user->hasRole('super_admin') || $user->can('SerialNumber View');
     }
@@ -21,7 +21,7 @@ class SerialNumberPolicy
     {
         return $user->hasRole('super_admin') || $user->can('SerialNumber List');
     }
-public function edit(User $user, serial_numbers $serialNumber): bool
+public function edit(User $user, SerialNumbers $serialNumber): bool
 {
     return $user->hasRole('super_admin') || $user->can('SerialNumber Edit');
 }
@@ -36,15 +36,15 @@ public function edit(User $user, serial_numbers $serialNumber): bool
     /**
      * Determine whether the user can update a serial number.
      */
-    public function update(User $user, serial_numbers $serialNumber): bool
+    public function update(User $user, SerialNumbers $serialNumber): bool
     {
-        return $user->hasRole('super_admin') || $user->can('SerialNumber Update');
+        return $user->hasRole('super_admin') || $user->can('SerialNumber Update') || $user->can('SerialNumber Edit');
     }
 
     /**
      * Determine whether the user can delete a serial number.
      */
-    public function delete(User $user, serial_numbers $serialNumber): bool
+    public function delete(User $user, SerialNumbers $serialNumber): bool
     {
         return $user->hasRole('super_admin') || $user->can('SerialNumber Delete');
     }

@@ -19,7 +19,7 @@ class UserPolicy
     use SoftDeletes, HasRoles, HasFactory, Notifiable;
     public function viewAny(User $user)
     {
-        return $user->hasRole(['super_admin'])|| $user->hasPermissionTo('User List');
+        return $user->hasRole(['super_admin']) || $user->can('User List');
     }
 
     /**
@@ -27,7 +27,7 @@ class UserPolicy
      */
     public function view(User $user, User $model)
     {
-        return $user->hasRole(['super_admin'])||  $user->hasPermissionTo('User View');
+        return $user->hasRole(['super_admin']) || $user->can('User View');
     }
 
     /**
@@ -35,7 +35,7 @@ class UserPolicy
      */
     public function create(User $user)
     {
-        return $user->hasRole(['super_admin'])||  $user->hasPermissionTo('User Create');
+        return $user->hasRole(['super_admin']) || $user->can('User Create');
     }
 
     /**
@@ -43,7 +43,7 @@ class UserPolicy
      */
     public function update(User $user, User $model)
     {
-        return $user->hasRole(['super_admin'])||  $user->hasPermissionTo('User Edit');
+        return $user->hasRole(['super_admin']) || $user->can('User Edit');
     }
 
     /**
@@ -51,7 +51,7 @@ class UserPolicy
      */
     public function delete(User $user, User $model)
     {
-        return $user->hasRole(['super_admin'])||  $user->hasPermissionTo('User Deactivate');
+        return $user->hasRole(['super_admin']) || $user->can('User Deactivate');
     }
 
     /**
@@ -59,7 +59,7 @@ class UserPolicy
      */
     public function restore(User $user, User $model)
     {
-        return $user->hasRole(['super_admin'])|| $user->hasPermissionTo('User Activate');
+        return $user->hasRole(['super_admin']) || $user->can('User Activate');
     }
 
     /**
@@ -69,5 +69,5 @@ class UserPolicy
     {
         //
     }
-    
+
 }

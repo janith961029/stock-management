@@ -12,6 +12,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Illuminate\Validation\Rule;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -19,11 +20,11 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class SupplierResource extends Resource
 {
     protected static ?string $model = Supplier::class;
-    protected static ?string $policy = \App\Policies\SupplierPolicy::class; 
+    protected static ?string $policy = \App\Policies\SupplierPolicy::class;
     protected static ?string $navigationGroup= 'Purchase Order';
     protected static ?int $navigationSort =2;
     protected static ?string $navigationIcon = 'heroicon-o-user-plus';
-    
+
 public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();
@@ -34,6 +35,10 @@ public static function getNavigationBadge(): ?string
             ->schema([
                TextInput::make('Sup_Name')
                     ->label('Supplier Name')
+                    ->rule(fn ($record) => Rule::unique('suppliers', 'Sup_Name')->ignore($record))
+                    ->validationMessages([
+                        'unique' => 'මෙම Supplier Name එක දැනටමත් system එකේ තියෙනවා.',
+                    ])
                     ->required(),
                 TextInput::make('Addrs')
                     ->label('Address')
@@ -54,52 +59,47 @@ public static function getNavigationBadge(): ?string
     {
         return $table
             ->columns([
-                  Tables\Columns\TextColumn::make('id')
-            ->label('#')
-            ->sortable()
-            ->size('sm')
-            ->weight(FontWeight::Light) 
-            ->toggleable()
-          
-            ->fontFamily(FontFamily::Mono), 
+                  Tables\Columns\TextColumn::make('Index')
+                    ->rowIndex()
+                    ->label('Ser'),
 
             Tables\Columns\TextColumn::make('Sup_Name')
             ->label('Supplier Name')
             ->sortable()
             ->searchable(isIndividual:true,isGlobal:false)
             ->size('xs')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             Tables\Columns\TextColumn::make('Addrs')
                 ->label('Address')
                 ->size('xs')
-                ->weight(FontWeight::Light)             
+                ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans),
             Tables\Columns\TextColumn::make('Tel')
             ->label('Tele')
             ->sortable()
             ->searchable(isIndividual:true,isGlobal:false)
             ->size('xs')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             Tables\Columns\TextColumn::make('Fax')
                 ->label('Fax')
                 ->size('xs')
-                ->weight(FontWeight::Light)             
+                ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans),
-              
-           
+
+
             ])
             ->filters([
                 //
             ])
-            
+
             ->actions([
                   Tables\Actions\ViewAction::make()->iconButton()->color('success'),
                 Tables\Actions\EditAction::make()->iconButton(),
                 Tables\Actions\DeleteAction::make()->iconButton(),
-           
-               
+
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

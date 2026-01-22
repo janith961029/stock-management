@@ -44,7 +44,9 @@ class PermissionPolicy
      */
     public function update(User $user, Permissions $permission): bool
     {
-        return $user->hasRole('super_admin') || $user->can('Permission Update');
+        return $user->hasRole('super_admin')
+            || $user->can('Permission Update') || $user->can('Permission Edit')
+            || $user->can('Permission Edit');
     }
 
     /**

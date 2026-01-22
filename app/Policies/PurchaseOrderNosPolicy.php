@@ -15,7 +15,7 @@ class PurchaseOrderNosPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('super_admin') || $user->hasPermissionTo('PurchaseOrderNos List');
+        return $user->hasRole('super_admin') || $user->can('PurchaseOrderNos List');
     }
 
     /**
@@ -23,7 +23,7 @@ class PurchaseOrderNosPolicy
      */
     public function view(User $user, PurchaseOrderNos $purchaseOrderNos): bool
     {
-        return $user->hasRole('super_admin') || $user->hasPermissionTo('PurchaseOrderNos View');
+        return $user->hasRole('super_admin') || $user->can('PurchaseOrderNos View');
     }
 
     /**
@@ -31,18 +31,18 @@ class PurchaseOrderNosPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasRole('super_admin') || $user->hasPermissionTo('PurchaseOrderNos Create');
+        return $user->hasRole('super_admin') || $user->can('PurchaseOrderNos Create');
     }
-  public function edit(User $user, PurchaseOrderNos $purchaseOrderNos): bool
+    public function edit(User $user, PurchaseOrderNos $purchaseOrderNos): bool
     {
-        return $user->hasRole('super_admin') || $user->hasPermissionTo('PurchaseOrderNos Edit');
+        return $user->hasRole('super_admin') || $user->can('PurchaseOrderNos Edit');
     }
     /**
      * Determine whether the user can update the model.
      */
     public function update(User $user, PurchaseOrderNos $purchaseOrderNos): bool
     {
-        return $user->hasRole('super_admin') || $user->hasPermissionTo('PurchaseOrderNos Update');
+        return $user->hasRole('super_admin') || $user->can('PurchaseOrderNos Update') || $user->can('PurchaseOrderNos Edit');
     }
 
     /**
@@ -50,9 +50,9 @@ class PurchaseOrderNosPolicy
      */
     public function delete(User $user, PurchaseOrderNos $purchaseOrderNos): bool
     {
-        return $user->hasRole('super_admin') || $user->hasPermissionTo('PurchaseOrderNos Delete');
+        return $user->hasRole('super_admin') || $user->can('PurchaseOrderNos Delete');
     }
 
 
- 
+
 }

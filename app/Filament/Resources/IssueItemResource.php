@@ -6,7 +6,7 @@ use App\Filament\Resources\IssueItemResource\Pages;
 use App\Filament\Resources\IssueItemResource\RelationManagers;
 use Filament\Forms\Get;
 use App\Models\ReciveItems;
-use App\Models\serial_numbers;
+
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\DatePicker;
@@ -33,12 +33,15 @@ use App\Models\rec_places;
 use App\Models\PurchaseOrderNos;
 use App\Models\Items;
 use App\Models\equipment_types;
+use App\Models\EquipmentTypes;
 use App\Models\IssueItem;
 use App\Models\IssuingType;
 use App\Models\IssuePlaces;
 use App\Models\RecPlaces;
+use App\Models\SerialNumbers;
 use Filament\Forms\Components\CheckboxList;
 use App\Models\SignalUnit;
+use App\Models\Store;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Hidden;
@@ -46,17 +49,25 @@ use Filament\Forms\Components\Grid;
 
 class IssueItemResource extends Resource
 {
-    protected static ?string $model = ReciveItems::class;
+    protected static ?string $model = IssueItem::class;
     protected static ?string $modelLabel = 'Issue Items';
-    protected static ?string $policy = \App\Policies\ReciveItemsPolicy::class;   
+    protected static ?string $policy = \App\Policies\IssueItemPolicy::class;
     protected static ?string $navigationGroup = 'Items';
     protected static ?int $navigationSort = 4;
-    
-    public static function getNavigationBadge(): ?string
+
+    // public static function getNavigationBadge(): ?string
+    // {
+    //     return static::getModel()::whereNotNull('total_quantity')->where('total_quantity', '!=', '')->count();
+    // }
+
+    public static function getEloquentQuery(): Builder
     {
-        return static::getModel()::whereNotNull('total_quantity')->where('total_quantity', '!=', '')->count();
+        return parent::getEloquentQuery()
+            ->withCount([
+                'serial_numbers as issued_serial_numbers_count' => fn (Builder $query) => $query->where('issued', 1),
+            ]);
     }
-    
+
     public static function form(Form $form): Form
     {
         return $form
@@ -65,8 +76,13 @@ class IssueItemResource extends Resource
                     ->schema([
                         Grid::make(3)
                             ->schema([
+
+
+
+
                                 TextInput::make('model_name')
                                     ->label('Item Name')
+				    ->disabled()
                                     ->required(),
                                 Select::make('manufactured_country')
                                     ->label('Manufactured Country')
@@ -78,7 +94,7 @@ class IssueItemResource extends Resource
                                     ->label('Ledger Card')
                                     ->disabled(),
                                 TextInput::make('total_quantity')
-                                    ->label('Quantity')                 
+                                    ->label('Quantity')
                                     ->numeric()
                                     ->integer()
                                     ->disabled()
@@ -122,20 +138,22 @@ class IssueItemResource extends Resource
                                     ->label('Remarks/Received'),
                             ])
                             ->columns(3),
-                        
+
                         Section::make('Serial Numbers with Issue Details')
                             ->schema([
                                 Repeater::make('serial_numbers')
                                     ->disableItemDeletion()
                                     ->disableItemCreation()
-                                    ->relationship(
-                                        'serial_numbers',
-                                        fn (Builder $query) => $query->where('recieved', 1)
-                                            ->where(function ($query) {
-                                                $query->where('issued', 0)
-                                                    ->orWhereNull('issued');
-                                            })
-                                    )
+                                   ->relationship(
+    'serial_numbers',
+    fn (Builder $query) => $query
+        ->where('recieved', 1)
+
+        ->where(function ($query) {
+            $query->whereNull('issue_place')
+                  ->orWhere('issue_place', '');
+        })
+)
                                     ->schema([
                                         // Serial Number Details
                                         TextInput::make('serial_number')
@@ -145,47 +163,56 @@ class IssueItemResource extends Resource
                                             ->required()
                                             ->disabled()
                                             ->columnSpan(1),
-                                        
+                                           Toggle::make('issued')
+    ->label('Issued')
+    ->reactive() // important
+    ->afterStateHydrated(function ($state, $set) {
+        $set('issued', $state ?? false);
+    })
+                                            ->columnSpan(1),
                                         // Common Issue Details for each serial number
                                         DatePicker::make('assigned_date')
                                             ->label('Assigned Date')
-                                            ->columnSpan(1),
-                                            
-                                        Select::make('issue_place')
-                                            ->label('Issue Place')
-                                            ->options(IssuePlaces::pluck('issue_place','issue_place'))
-                                            ->searchable()
-                                            ->columnSpan(1),
-                                            
+                                            ->columnSpan(1)
+                                            ->visible(fn (Get $get) => (bool) $get('issued'))
+                                            ->dehydrated(fn (Get $get) => (bool) $get('issued'))
+                                            ->required(fn (Get $get) => (bool) $get('issued')),
+
+                                          // 🔹 Only visible if toggle ON
                                         Select::make('issuing_type')
                                             ->label('Issuing Type')
                                             ->options(IssuingType::pluck('issuing_type','issuing_type'))
                                             ->searchable()
-                                            ->columnSpan(1),
-                                            
+                                            ->columnSpan(1)
+                                            ->visible(fn (Get $get) => (bool) $get('issued'))
+                                            ->dehydrated(fn (Get $get) => (bool) $get('issued'))
+                                            ->required(fn (Get $get) => (bool) $get('issued')),
+
                                         TextInput::make('job_card_number')
                                             ->label('Job Card Number')
-                                            ->columnSpan(1),
-                                            
+                                            ->columnSpan(1)
+                                            ->visible(fn (Get $get) => (bool) $get('issued'))
+                                            ->dehydrated(fn (Get $get) => (bool) $get('issued'))
+                                            ->required(fn (Get $get) => (bool) $get('issued')),
+
                                         Select::make('signal_unit')
                                             ->label('Signal Unit')
                                             ->options(SignalUnit::pluck('sig_unit_name','sig_unit_name'))
                                             ->searchable()
-                                            ->columnSpan(1),
-                                        
-                                        Toggle::make('issued')
-                                            ->label('Issued')
-                                            ->onColor('success')
-                                            ->offColor('danger')
-                                            ->afterStateUpdated(function ($state, $record) {
-                                                // Update the issued status in the database
-                                                if ($record) {
-                                                    $record->issued = $state ? 1 : 0;
-                                                    $record->save();
-                                                }
-                                            })
-                                            ->columnSpan(1),
-                                            
+                                            ->columnSpan(1)
+                                            ->visible(fn (Get $get) => (bool) $get('issued'))
+                                            ->dehydrated(fn (Get $get) => (bool) $get('issued'))
+                                            ->required(fn (Get $get) => (bool) $get('issued')),
+Select::make('issue_place')
+    ->label('Issue Place')
+    ->options(IssuePlaces::pluck('issue_place','issue_place'))
+    ->searchable()
+    ->columnSpan(1)
+    ->reactive()
+    ->visible(fn (Get $get) => (bool) $get('issued'))
+    ->dehydrated(fn (Get $get) => (bool) $get('issued'))
+    ->required(fn (Get $get) => (bool) $get('issued')),
+
                                         Hidden::make('id')
                                     ])
                                     ->columns(3)
@@ -195,40 +222,8 @@ class IssueItemResource extends Resource
             ]);
     }
 
-protected function afterSave(): void
-{
-    $data = $this->form->getState();
 
-    if (!empty($data['serial_numbers'])) {
-        foreach ($data['serial_numbers'] as $serialData) {
-            if (!empty($serialData['id'])) {
-                $serial = serial_numbers::find($serialData['id']);
-                if ($serial) {
-                    // Update details (except issued)
-                    $serial->assigned_date = $serialData['assigned_date'] ?? null;
-                    $serial->issue_place = $serialData['issue_place'] ?? null;
-                    $serial->issuing_type = $serialData['issuing_type'] ?? null;
-                    $serial->job_card_number = $serialData['job_card_number'] ?? null;
-                    $serial->signal_unit = $serialData['signal_unit'] ?? null;
 
-                    if (!empty($serialData['issued'])) {
-                        // Only update issued = 1
-                        $serial->issued = 1;
-                        $serial->save();
-                    } else {
-                        // Toggle OFF ? only notify, do NOT save
-                        \Filament\Notifications\Notification::make()
-                            ->title('Not Issued')
-                            ->danger()
-                            ->body("Serial number {$serial->serial_number} marked as not issued.")
-                            ->send();
-                    }
-                }
-            }
-        }
-    }
-}
- 
 
 
 
@@ -236,30 +231,116 @@ public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->label('#')
-                    ->sortable()
-                    ->size('sm')
-                    ->weight(FontWeight::Light) 
-                    ->toggleable()          
-                    ->fontFamily(FontFamily::Mono),
-                Tables\Columns\TextColumn::make('items.item_code')
-                    ->label('Item Code')
-                    ->sortable()
-                    ->searchable(isIndividual:true,isGlobal:false)
-                    ->size('xs')
-                    ->weight(FontWeight::Light)             
-                    ->fontFamily(FontFamily::Sans),
-                Tables\Columns\TextColumn::make('ledger_card_no')
-                    ->label('Ledger Card No')
-                    ->size('xs')
-                    ->weight(FontWeight::Light)             
-                    ->fontFamily(FontFamily::Sans),
-                Tables\Columns\TextColumn::make('warrenty_expiry_date')
-                    ->label('Warranty Expire Date')
-                    ->size('xs')
-                    ->weight(FontWeight::Light)             
-                    ->fontFamily(FontFamily::Sans),
+                 Tables\Columns\TextColumn::make('id')
+                ->label('#')
+                ->sortable()
+                ->size('sm')
+                ->weight(FontWeight::Light)
+                ->toggleable()
+                ->fontFamily(FontFamily::Mono),
+
+          Tables\Columns\TextColumn::make('item.item_code')
+                ->label('Item Code')
+                ->sortable()
+                ->size('xs')
+                ->weight(FontWeight::Light)
+                ->fontFamily(FontFamily::Sans),
+Tables\Columns\TextColumn::make('title.title_names_id')
+
+            ->label('Title Name')
+            ->sortable()
+            ->size('sm')
+            ->weight(FontWeight::Light)
+            ->fontFamily(FontFamily::Sans),
+Tables\Columns\TextColumn::make('model_name')
+                ->label('Model Name')
+                ->size('xs')
+                ->weight(FontWeight::Light)
+                ->fontFamily(FontFamily::Sans)
+                ->searchable(isIndividual:true,isGlobal:false),
+
+            Tables\Columns\TextColumn::make('total_quantity')
+                ->label('Quantity')
+                ->size('xs')
+                ->weight(FontWeight::Light)
+                ->fontFamily(FontFamily::Sans)
+                ->toggleable(isToggledHiddenByDefault:false),
+                 Tables\Columns\TextColumn::make('available_count')
+                ->label('Available')
+                ->size('xs')
+                ->weight(FontWeight::Light)
+                ->fontFamily(FontFamily::Sans)
+                ->getStateUsing(static function (IssueItem $record): int {
+                    $total = (int) $record->total_quantity;
+                    $issued = (int) ($record->issued_serial_numbers_count ?? 0);
+                    $available = $total - $issued;
+
+                    return $available > 0 ? $available : 0;
+                })
+                ->formatStateUsing(static fn (int $state): string => (string) $state),
+            Tables\Columns\TextColumn::make('item.relevantstore.stores')
+                ->label('Relevant Store')
+                ->sortable()
+                ->size('xs')
+                ->weight(FontWeight::Light)
+                ->fontFamily(FontFamily::Sans),
+
+            Tables\Columns\TextColumn::make('item.ictcategories.ictcategories_name')
+                ->label('ICT Category')
+                ->sortable()
+                ->size('xs')
+                ->weight(FontWeight::Light)
+                ->fontFamily(FontFamily::Sans),
+
+            Tables\Columns\TextColumn::make('item.equipment_types.equipment_name')
+                ->label('Equipment Type')
+                ->sortable()
+                ->size('xs')
+                ->weight(FontWeight::Light)
+                ->fontFamily(FontFamily::Sans),
+
+            Tables\Columns\TextColumn::make('purchase_order_nos.purchase_order_no')
+                ->label('Purchase Order Number')
+                ->size('xs')
+                ->searchable(isIndividual:true,isGlobal:false)
+                ->weight(FontWeight::Light)
+                ->fontFamily(FontFamily::Sans)
+                ->toggleable(isToggledHiddenByDefault:false),
+            Tables\Columns\TextColumn::make('total_quantity')
+                ->label('Quantity')
+                ->size('xs')
+                ->weight(FontWeight::Light)
+                ->fontFamily(FontFamily::Sans)
+                ->toggleable(isToggledHiddenByDefault:false),
+
+            Tables\Columns\TextColumn::make('itemprice')
+                ->label('Item Price')
+                ->size('xs')
+                ->weight(FontWeight::Light)
+                ->fontFamily(FontFamily::Sans)
+                ->toggleable(isToggledHiddenByDefault:false),
+
+
+           Tables\Columns\TextColumn::make('recplaces.Rec_place')
+                ->label('Received Place')
+                ->size('xs')
+                ->weight(FontWeight::Light)
+                ->fontFamily(FontFamily::Sans)
+                ->searchable(isIndividual:true,isGlobal:false),
+            Tables\Columns\TextColumn::make('ledger_card_no')
+            ->label('Ledger card No')
+            ->size('xs')
+            ->weight(FontWeight::Light)
+            ->fontFamily(FontFamily::Sans)
+            ->searchable(isIndividual:true,isGlobal:false)
+            ->toggleable(isToggledHiddenByDefault:true),
+Tables\Columns\TextColumn::make('country.name')
+             ->label('Country')
+             ->size('xs')
+             ->weight(FontWeight::Light)
+             ->fontFamily(FontFamily::Sans)
+             ->searchable(isIndividual:true,isGlobal:false)
+             ->toggleable(isToggledHiddenByDefault:true),
             ])
             ->filters([
                 //
@@ -268,7 +349,7 @@ public static function table(Table $table): Table
                 Tables\Actions\EditAction::make()->iconButton(),
                 Tables\Actions\Action::make('quantity')
                     ->icon('heroicon-o-document-text')
-                    ->iconButton()    
+                    ->iconButton()
                     ->color('success')
                     ->url(fn ($record) => static::getUrl('quantity', ['record' => $record]))
                     ->openUrlInNewTab(),

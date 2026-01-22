@@ -21,6 +21,7 @@ use Filament\Infolists\Infolist as InfolistsInfolist;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
+use Filament\Facades\Filament;
 
 class PermissionResource extends Resource
 {
@@ -32,7 +33,7 @@ class PermissionResource extends Resource
     protected static ?string $navigationGroup = 'User Management';
  public static function canViewAny(): bool
 {
-    return auth()->user()->hasPermissionTo('Permission View');
+    return Filament::auth()->user()?->hasPermissionTo('Permission View') ?? false;
 }
     public static function form(Form $form): Form
     {
@@ -108,7 +109,7 @@ public static function infolist(Infolist $infolist): Infolist
         return [
             'index' => Pages\ListPermissions::route('/'),
             // 'create' => Pages\CreatePermission::route('/create'),
-            // 'edit' => Pages\EditPermission::route('/{record}/edit'),
+            'edit' => Pages\EditPermission::route('/{record}/edit'),
         ];
     }
 }

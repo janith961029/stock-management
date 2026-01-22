@@ -14,13 +14,14 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Validation\Rule;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Select;
 class ModuleResource extends Resource
 {
     protected static ?string $model = Module::class;
-    protected static ?string $policy = \App\Policies\ModulePolicy::class;    
+    protected static ?string $policy = \App\Policies\ModulePolicy::class;
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $navigationGroup = 'User Management';
     protected static ?int $navigationSort = 4;
@@ -31,7 +32,12 @@ class ModuleResource extends Resource
                 Card::make()->schema([
                     TextInput::make('name')
                     ->minLength(2)
+                    ->label('Module Name')
                     ->maxLength(255)
+                     ->rule(fn ($record) => Rule::unique('modules', 'name')->ignore($record))
+            ->validationMessages([
+                        'unique' => 'මෙම Module Name එක දැනටමත් system එකේ තියෙනවා.',
+                    ])
                     ->required()
                     ->unique(ignoreRecord:true),
                 TextInput::make('details')

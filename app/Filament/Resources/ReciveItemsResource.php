@@ -15,10 +15,11 @@ use Filament\Forms\Components\TagsInput;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\FontFamily;
 use App\Models\ReciveItems;
-use App\Models\ictcategories;
-use App\Models\titlenames;
+use App\Models\IctCategories;
+use App\Models\Titlenames;
 use App\Models\Store;
-use App\Models\measures;
+use App\Models\Measures;
+use App\Models\ModelName;
 use App\Models\RecPlaces;
 use App\Models\PurchaseOrderNos;
 use App\Models\Items;
@@ -36,19 +37,20 @@ use Filament\Tables;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Tables\Table;
+use Illuminate\Validation\Rule;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\HtmlColumn;
 use DNS1D;
 class ReciveItemsResource extends Resource
 {
-    protected static ?string $model =Items::class;
+    protected static ?string $model =ReciveItems::class;
     protected static ?string $modelLabel='Recieved Items';
-   protected static ?string $policy = \App\Policies\ItemsPolicy::class; 
-     protected static ?int $navigationSort = 2;
+    protected static ?string $policy = \App\Policies\RecieveItemPolicy::class;
+    protected static ?int $navigationSort = 2;
     protected static ?string $navigationLabel= 'Recieved Items';
     protected static ?string $navigationGroup= 'Items';
-   
+
 
 
     public static function form(Form $form): Form
@@ -57,6 +59,19 @@ class ReciveItemsResource extends Resource
         ->schema([
             Forms\Components\Grid::make(3)
                 ->schema([
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                     Forms\Components\Select::make('relevant_store_id')
                         ->options(Store::pluck('stores', 'id'))
@@ -67,9 +82,9 @@ class ReciveItemsResource extends Resource
                     Forms\Components\Select::make('ict_category_id')
                         ->label('ICT Category')
                         ->disabled()
-                        ->options(ictcategories::pluck('ictcategories_name', 'id'))
+                        ->options(IctCategories::pluck('ictcategories_name', 'id'))
                         ->searchable()->required(),
-                    
+
                     Forms\Components\Select::make('equipment_types_id')
                         ->label('Equipment Type')
                         ->disabled()
@@ -80,31 +95,44 @@ class ReciveItemsResource extends Resource
                     Forms\Components\Select::make('title_names_id')
                         ->label('Title Name')
                         ->disabled()
-                        ->options(titlenames::pluck('title_name', 'id'))
-                        ->searchable()->required(),
+                        ->options(Titlenames::pluck('title_name', 'id'))
+                        ->searchable()
+                        ->required()
+                        ->reactive(),
+//ICT Category
 
                     Forms\Components\TextInput::make('item_code')
                         ->disabled()
                         ->label('Item Code'),
 
-                    
+
 
                 ])
                 ->columns(3),
-                
-        Section::make('Serial Numbers')
+
+        Section::make('Add Item Bulk')
         ->schema([
-          
-        
+
+
         Repeater::make('Recieving Details')
        ->relationship('item_details', fn (Builder $query) =>$query->whereNull('total_quantity'))
 //      ->relationship('item_details')
             ->schema([
-                
-               
-                TextInput::make('model_name')
+
+
+                Forms\Components\Select::make('model_name')
                     ->label('Model Name')
-                    ->required(),
+                    ->searchable()
+                    ->required()
+                  ->options(ModelName::pluck('model_names', 'id'))
+                   ->suffixAction(
+                                Forms\Components\Actions\Action::make('NewModel')
+                                    ->icon('heroicon-o-plus')
+                                    ->url(\App\Filament\Resources\ModelNameResource::getUrl('create'))
+                                    ->openUrlInNewTab()
+                                            ),
+
+
                 Forms\Components\Select::make('manufactured_country')
                         ->label('Manufactured  Country')
                         ->options(countries::pluck('name', 'id'))
@@ -129,27 +157,27 @@ class ReciveItemsResource extends Resource
 
                 TextInput::make('itemprice')
                     ->label('Item Price (LKR)')
-                   
+
                     ->numeric()
                     ->integer()
                     ->minValue(0)
                     ->step(1)
                     ->rules(['required', 'integer', 'min:0'])
                     ->placeholder('PRICE'),
-                                        
+
                 Select::make('received_place')
                     ->label('Received From')
                     ->options(RecPlaces::pluck('Rec_place', 'id'))
                     ->searchable()->required(),
-       
+
                 DatePicker::make('received_date')
                     ->label('Received Date ')
                     ->required(),
                 DatePicker::make('warrenty_expiry_date')
                     ->label('Warranty Expiry Date')
                     ->required(),
-             
-       
+
+
                 TextInput::make('remarks_recieved')
                   ->label('Remarks'),
             ])
@@ -159,44 +187,43 @@ class ReciveItemsResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-        
+
             ->columns([
             Tables\Columns\TextColumn::make('id')
                 ->label('#')
                 ->sortable()
                 ->size('sm')
-                ->weight(FontWeight::Light) 
+                ->weight(FontWeight::Light)
                 ->toggleable()
-                ->fontFamily(FontFamily::Mono), 
+                ->fontFamily(FontFamily::Mono),
 
             Tables\Columns\TextColumn::make('item_code')
                 ->label('Item Code')
                 ->sortable()
                 ->searchable(isIndividual:true,isGlobal:false)
                 ->size('xs')
-                ->weight(FontWeight::Light)             
+                ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans),
 
             Tables\Columns\TextColumn::make('equipment_types.equipment_name')
                 ->label('Equipment Type')
                 ->size('xs')
-                ->weight(FontWeight::Light)             
+                ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans)
                 ->searchable(isIndividual:true,isGlobal:false),
 
             Tables\Columns\TextColumn::make('title_names_id')
                 ->label('Title Name')
                 ->size('xs')
-                ->weight(FontWeight::Light)             
+                ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans)
                 ->searchable(isIndividual:true,isGlobal:false),
             Tables\Columns\TextColumn::make('ictcategories.ictcategories_name')
              ->label('ICT Category')
              ->size('xs')
-             ->weight(FontWeight::Light)             
+             ->weight(FontWeight::Light)
              ->fontFamily(FontFamily::Sans)
-             ->searchable(isIndividual:true,isGlobal:false)
-             ->toggleable(isToggledHiddenByDefault:true),
+             ->searchable(isIndividual:true,isGlobal:false),
             ])
             ->filters([
                 //
@@ -205,13 +232,14 @@ class ReciveItemsResource extends Resource
                 Tables\Actions\ViewAction::make()->iconButton()->color('success'),
                 Tables\Actions\EditAction::make()->iconButton(),
                 Tables\Actions\DeleteAction::make()->iconButton(),
-       
-            
+
+
+
 
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-              
+
                 ]),
             ]);
     }
@@ -232,7 +260,8 @@ class ReciveItemsResource extends Resource
             'index' => Pages\ListReciveItems::route('/'),
            //'create' => Pages\CreateReciveItems::route('/create'),
            // 'edit' => Pages\EditReciveItems::route('/{record}/edit'),
-        
+            'qr' => Pages\QrReciveItems::route('/{record}/qr'),
+
         ];
     }
 }

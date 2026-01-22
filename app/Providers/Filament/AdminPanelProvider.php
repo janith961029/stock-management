@@ -11,7 +11,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
-
+use App\Filament\Pages\Auth\Login;
 use Filament\Support\Colors\Color;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -25,24 +25,25 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-       
+
         return $panel
             ->default()
             ->id('admin')
             ->path('admin')
             ->sidebarWidth('18rem')
             ->navigation(true)
-            ->login()  
-            ->registration() 
-           
-            ->passwordReset()                   
-            ->emailVerification()                
+            ->authGuard('web')
+            ->login(Login::class)
+            ->registration()
+
+            ->passwordReset()
+            ->emailVerification()
             ->brandName('STOCK MANAGEMENT')
             ->brandLogo(asset('images/logo.png'))
             ->brandLogoHeight('3rem')
             ->brandName('STOCK MANAGEMENT')
             ->colors([
-          
+
                 'slate' => Color::Slate,
                 'gray' => Color::Gray,
                 'zinc' => Color::Zinc,
@@ -71,10 +72,10 @@ class AdminPanelProvider extends PanelProvider
                 'milky'=>Color::hex('#DD90FF'),
                 'foamy'=>Color::hex('#7F7F7F'),
             ])
-        
+
              ->sidebarCollapsibleOnDesktop(true)
-             
-             
+
+
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
@@ -84,7 +85,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                // Widgets\AccountWidget::class,
                // Widgets\FilamentInfoWidget::class,
-              
+
 
             ])
             ->middleware([
@@ -99,12 +100,12 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
               ->plugins([
-              
+
             ])
             ->authMiddleware([
                 Authenticate::class,
             ]);
-            
+
     }
-    
+
 }

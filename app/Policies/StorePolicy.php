@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Policies;
 
 use App\Models\Store;
@@ -38,7 +37,7 @@ class StorePolicy
      */
     public function update(User $user, Store $store): bool
     {
-        return $user->hasRole('super_admin') || $user->can('Store Update');
+        return $user->hasRole('super_admin') || $user->can('Store Update') || $user->can('Store Edit');
     }
    public function edit(User $user, Store $store): bool
     {

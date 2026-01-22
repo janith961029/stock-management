@@ -10,6 +10,7 @@ use Filament\Forms;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Illuminate\Validation\Rule;
 use Filament\Support\Enums\FontFamily;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class StoreResource extends Resource
 {
     protected static ?string $model = Store::class;
+    protected static ?string $policy = \App\Policies\StorePolicy::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-wrench-screwdriver';
        protected static ?string $navigationGroup= 'Master Data';
@@ -35,7 +37,11 @@ class StoreResource extends Resource
             ->schema([
                TextInput::make('stores')
                     ->label('Stores')
-                    ->required(),
+                    ->rule(fn ($record) => Rule::unique('stores', 'stores')->ignore($record))
+            ->validationMessages([
+                    'unique' => 'මෙම Store එක දැනටමත් system එකේ තියෙනවා.',
+                ])
+            ->required(),
             ]);
     }
 
@@ -43,19 +49,15 @@ class StoreResource extends Resource
     {
         return $table
             ->columns([
-                   Tables\Columns\TextColumn::make('id')
-            ->label('#')
-            ->sortable()
-            ->size('sm')
-            ->weight(FontWeight::Light) 
-            ->toggleable()
-            ->fontFamily(FontFamily::Mono), 
+                  Tables\Columns\TextColumn::make('Index')
+                    ->rowIndex()
+                    ->label('Ser'),
 
             Tables\Columns\TextColumn::make('stores')
             ->label('Stores')
             ->sortable()
             ->size('xs')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             ])
             ->filters([

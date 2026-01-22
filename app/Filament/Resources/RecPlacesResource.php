@@ -12,6 +12,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\FontFamily;
 use Filament\Support\Enums\FontWeight;
+use Illuminate\Validation\Rule;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -21,6 +22,7 @@ class RecPlacesResource extends Resource
 {
     protected static ?string $model = RecPlaces::class;
     protected static ?string $navigationGroup= 'Master Data';
+    protected static ?string $policy = \App\Policies\RecPlacesPolicy::class;
     protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
      public static function getNavigationBadge(): ?string
     {
@@ -32,8 +34,12 @@ class RecPlacesResource extends Resource
             ->schema([
                TextInput::make('Rec_place')
                     ->label('Recieved Place')
-                    ->required(),
-               
+                    ->rule(fn ($record) => Rule::unique('rec_places', 'Rec_place')->ignore($record))
+            ->validationMessages([
+                'unique' => 'මෙම Recieved Place එක දැනටමත් system එකේ තියෙනවා.',
+            ])
+            ->required(),
+
             ]);
     }
 
@@ -41,19 +47,15 @@ class RecPlacesResource extends Resource
     {
         return $table
             ->columns([
-            Tables\Columns\TextColumn::make('id')
-            ->label('#')
-            ->sortable()
-            ->size('sm')
-            ->weight(FontWeight::Light) 
-            ->toggleable()
-            ->fontFamily(FontFamily::Mono), 
+            Tables\Columns\TextColumn::make('Index')
+                    ->rowIndex()
+                    ->label('Ser'),
 
             Tables\Columns\TextColumn::make('Rec_place')
             ->label('Issue Type')
             ->sortable()
             ->size('xs')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             ])
             ->filters([
