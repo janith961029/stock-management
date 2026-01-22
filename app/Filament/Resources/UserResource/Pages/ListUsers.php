@@ -6,6 +6,7 @@ use App\Filament\Resources\UserResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use ArielMejiaDev\FilamentPrintable\Actions\PrintAction;
+use Illuminate\Database\Eloquent\Model;
 
 class ListUsers extends ListRecords
 {
@@ -18,4 +19,5 @@ class ListUsers extends ListRecords
           //  PrintAction::make(),
         ];
     }
+
 }
