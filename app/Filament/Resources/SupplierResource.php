@@ -33,23 +33,23 @@ public static function getNavigationBadge(): ?string
     {
         return $form
             ->schema([
-               TextInput::make('Sup_Name')
+               TextInput::make('supplier')
                     ->label('Supplier Name')
-                    ->rule(fn ($record) => Rule::unique('suppliers', 'Sup_Name')->ignore($record))
+                    ->rule(fn ($record) => Rule::unique('suppliers', 'supplier')->ignore($record))
                     ->validationMessages([
                         'unique' => 'මෙම Supplier Name එක දැනටමත් system එකේ තියෙනවා.',
                     ])
                     ->required(),
-                TextInput::make('Addrs')
+                TextInput::make('addrs')
                     ->label('Address')
                     ->required(),
-                TextInput::make('Tel')
+                TextInput::make('tele')
                     ->label('Contact No')
                     ->required(),
-                TextInput::make('Fax')
+                TextInput::make('fax')
                     ->label('Fax No')
                     ->required(),
-                TextInput::make('Email')
+                TextInput::make('email')
                     ->label('Email')
                     ->required(),
             ]);
@@ -63,26 +63,26 @@ public static function getNavigationBadge(): ?string
                     ->rowIndex()
                     ->label('Ser'),
 
-            Tables\Columns\TextColumn::make('Sup_Name')
+            Tables\Columns\TextColumn::make('supplier')
             ->label('Supplier Name')
             ->sortable()
             ->searchable(isIndividual:true,isGlobal:false)
             ->size('xs')
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
-            Tables\Columns\TextColumn::make('Addrs')
+            Tables\Columns\TextColumn::make('addrs')
                 ->label('Address')
                 ->size('xs')
                 ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans),
-            Tables\Columns\TextColumn::make('Tel')
+            Tables\Columns\TextColumn::make('tele')
             ->label('Tele')
             ->sortable()
             ->searchable(isIndividual:true,isGlobal:false)
             ->size('xs')
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
-            Tables\Columns\TextColumn::make('Fax')
+            Tables\Columns\TextColumn::make('fax')
                 ->label('Fax')
                 ->size('xs')
                 ->weight(FontWeight::Light)

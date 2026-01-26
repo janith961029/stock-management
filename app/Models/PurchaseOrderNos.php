@@ -6,24 +6,24 @@ use Illuminate\Database\Eloquent\Model;
 
 class PurchaseOrderNos extends Model
 
-{ 
-  protected $guarded = [];    
+{
+  protected $guarded = [];
 
 
 public function supplier()
     {
-        return $this->hasMany(Supplier::class,'sup_id');
-       
+        return $this->belongsTo(Supplier::class, 'sup_id');
+
     }
-  
+
 public function votes()
 {
-    return $this->belongsTo(Votes::class, 'vote_id', 'id');
+    return $this->belongsTo(Votes::class, 'vote_code', 'id');
 }
-    
 
-public function Eshtablishment()
+
+public function establishment()
 {
-    return $this->belongsTo(Establishment::class, 'rcvd', 'id');
+    return $this->belongsTo(Establishment::class, 'rcvd_to', 'id');
 }
 }

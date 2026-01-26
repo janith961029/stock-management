@@ -55,14 +55,15 @@ class PurchaseOrderNosResource extends Resource
                         'unique' => 'මෙම Purchase Order Name එක දැනටමත් system එකේ තියෙනවා.',
                     ])
                     ->required(),
-                    Select::make('Supplier')
+                    Select::make('sup_id')
                         ->label('Supplier')
-                        ->options(Supplier::pluck('Sup_Name', 'id'))
+                        ->options(Supplier::pluck('supplier', 'id'))
                         ->searchable()
                         ->required()
                     ->suffixAction(
                                 Forms\Components\Actions\Action::make('newSupplier')
                                     ->icon('heroicon-o-plus')
+
                                     ->url(\App\Filament\Resources\SupplierResource::getUrl('create'))
                                     ->openUrlInNewTab()
                                             ),
@@ -106,15 +107,67 @@ class PurchaseOrderNosResource extends Resource
             ->size('sm')
             ->weight(FontWeight::Light)             // lighter font
             ->fontFamily(FontFamily::Sans),
+
+
+            Tables\Columns\TextColumn::make('supplier.supplier')
+            ->label('Supplier Name')
+            ->sortable()
+            ->size('sm')
+            ->weight(FontWeight::Light)             // lighter font
+            ->fontFamily(FontFamily::Sans),
+
+            Tables\Columns\TextColumn::make('votes.vote_code')
+            ->label('Vote Code')
+            ->sortable()
+            ->size('sm')
+            ->weight(FontWeight::Light)             // lighter font
+            ->fontFamily(FontFamily::Sans),
+
+            Tables\Columns\TextColumn::make('establishment.establishment')
+            ->label('Establishment')
+            ->sortable()
+            ->size('sm')
+            ->weight(FontWeight::Light)             // lighter font
+            ->fontFamily(FontFamily::Sans),
             ])
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make()->iconButton()->color('success'),
-                Tables\Actions\EditAction::make()->iconButton(),
-                Tables\Actions\DeleteAction::make()->iconButton(),
-            ])
+           ->actions([
+    Tables\Actions\ViewAction::make()
+        ->iconButton()
+        ->color('success')
+        ->form([
+            Forms\Components\Grid::make(3)->schema([
+
+                TextInput::make('purchase_order_no')
+                    ->label('Purchase Order Name')
+                    ->disabled(),
+
+                Select::make('sup_id')
+                    ->label('Supplier')
+                    ->options(Supplier::pluck('supplier', 'id'))
+                    ->searchable()
+                    ->disabled(),
+                    // ✅ suffixAction දාන්නේ නැහැ
+
+                Select::make('vote_code')
+                    ->label('Vote code')
+                    ->options(Votes::pluck('vote_code', 'id'))
+                    ->searchable()
+                    ->disabled(),
+
+                Select::make('rcvd_to')
+                    ->label('Establishment')
+                    ->options(Establishment::pluck('establishment', 'id'))
+                    ->searchable()
+                    ->disabled(),
+            ]),
+        ]),
+
+    Tables\Actions\EditAction::make()->iconButton(),
+    Tables\Actions\DeleteAction::make()->iconButton(),
+])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                 Tables\Actions\DeleteBulkAction::make(),

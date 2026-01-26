@@ -27,6 +27,9 @@ class TitlenamesResource extends Resource
 {
     protected static ?string $model = Titlenames::class;
     protected static ?string $policy = \App\Policies\TitlenamesPolicy::class;
+    protected static ?string $navigationLabel= 'Title Names';
+    protected static ?string $pluralLabel = 'Title Names';
+    protected static ?string $label = 'Title Name';
  public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();

@@ -172,9 +172,14 @@ class ReciveItemsResource extends Resource
 
                 DatePicker::make('received_date')
                     ->label('Received Date ')
+                    ->minDate(now())
+                    ->maxDate(now())
+                    ->rules(['date_equals:today'])
                     ->required(),
                 DatePicker::make('warrenty_expiry_date')
                     ->label('Warranty Expiry Date')
+                    ->minDate(now())
+                    ->rules(['after_or_equal:today'])
                     ->required(),
 
 

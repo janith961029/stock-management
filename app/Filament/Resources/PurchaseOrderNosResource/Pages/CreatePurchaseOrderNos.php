@@ -30,7 +30,7 @@ class CreatePurchaseOrderNos extends CreateRecord
         ->body('The Purchase Order Added Successfully')
         ->success()
         ->color('success')
-        ->icon('heroicon-o-collection');
+        ->icon('heroicon-o-rectangle-stack');
     }
     public function successRedirectUrl()
     {
