@@ -53,8 +53,8 @@ protected static ?int $navigationSort = 4;
     ->formatStateUsing(fn ($state) => str_replace('SN CODE : SN', '', $state)) // display only
     ->label('Barcode')
     ->searchable(
-        isIndividual: true,
-        isGlobal: false,
+        isIndividual: false,
+        isGlobal: true,
         query: function (\Illuminate\Database\Eloquent\Builder $query, string $search): \Illuminate\Database\Eloquent\Builder {
             $cleaned = str_replace(['SN CODE : SN','SN CODE:SN','SN CODE :SN'], '', $search);
             $cleaned = trim($cleaned);
@@ -125,7 +125,7 @@ Tables\Columns\TextColumn::make('recive_item.model_name')
         Tables\Columns\TextColumn::make('signal_unit')
 
             ->label('Signal Unit')
-            ->searchable(isIndividual:true,isGlobal:false)
+            ->searchable(isIndividual: false, isGlobal: true)
             ->sortable()
             ->size('sm')
             ->weight(FontWeight::Light)

@@ -22,8 +22,13 @@ public function votes()
 }
 
 
-public function establishment()
+// public function establishment()
+// {
+//     return $this->belongsTo(Establishment::class, 'rcvd_to', 'id');
+// }
+
+public function issuePlace()
 {
-    return $this->belongsTo(Establishment::class, 'rcvd_to', 'id');
+    return $this->belongsTo(IssuePlaces::class, 'rcvd_to', 'id');
 }
 }

@@ -33,8 +33,8 @@ class ItemsResource extends Resource
 {
     protected static ?string $model =Items::class;
     protected static ?string $modelLabel='Items';
-    protected static ?string $policy = \App\Policies\ItemsPolicy::class; 
-//  protected static ?string $navigationIcon = 'heroicon-o-rectangle-group'; 
+    protected static ?string $policy = \App\Policies\ItemsPolicy::class;
+//  protected static ?string $navigationIcon = 'heroicon-o-rectangle-group';
 
 
 //  public static function getNavigationBadge(): ?string
@@ -50,15 +50,15 @@ class ItemsResource extends Resource
     protected static ?string $navigationGroup= 'Items';
     protected static ?int $navigationSort = 1;
     protected static ?string $recordTitleAttribute = 'item_code';
-    
-   
+
+
 
 
     public static function form(Form $form): Form
     {
-        
+
     return $form->schema([
-        
+
         Section::make('General Info')
             ->description('Basic item details')
             ->schema([
@@ -70,7 +70,7 @@ class ItemsResource extends Resource
                 Select::make('relevant_store_id')
                     ->options(Store::pluck('stores', 'id'))
                     ->label('Relevant Store')
-                    ->live() 
+                    ->live()
                     ->required()
                     ->reactive()
                     ->afterStateUpdated(fn (Forms\Set $set) => $set('title_name', null)),
@@ -81,7 +81,7 @@ class ItemsResource extends Resource
                     ->searchable()
                     ->required(),
 
-//Equipment Type   
+//Equipment Type
                 Select::make('equipment_types_id')
                     ->label('Equipment Type')
                     ->options(EquipmentTypes::pluck('equipment_name', 'id'))
@@ -97,32 +97,32 @@ class ItemsResource extends Resource
                         ? 'First select Store'
                         : 'Select Title Name'
                     )
-                ->options(fn (Forms\Get $get) => 
+                ->options(fn (Forms\Get $get) =>
                     Titlenames::where('relevant_store_id', $get('relevant_store_id'))
                         ->pluck('title_name', 'title_name'))
                 ->required(),
 
-                
-                
-                
+
+
+
             ])
             ->columns(2),
 
         Section::make('Availability')
 
-       
+
             ->schema([
                 Toggle::make('is_serial')
-                  ->label('Serial Number..?')
-                  ->required(),
+                  ->label('Serial Number..?'),
+
                 Toggle::make('is_unit')
-                  ->label('is_Unit..?')
-                  ->required(),
-        
+                  ->label('is_Unit..?'),
+
+
             ])
                   ->collapsible()
                   ->columns(1),
-       
+
         Section::make('Inventory Details')
             ->schema([
                 Select::make('unit_of_issue_id')
@@ -132,22 +132,28 @@ class ItemsResource extends Resource
                     ->required(),
 
 
-        //Re-Order Level            
+        //Re-Order Level
                 TextInput::make('re_order_level')
-                  ->label('Re Order Level')
-                
-                  ->required(),
+                ->label('Re Order Level')
+                ->numeric()          // allow numbers only
 
-        //Commander Reserve        
-                TextInput::make('commander_reserve')
-                  ->label('Commander Reserve')
-               
-                  ->required(),
+                ->validationMessages([
+                         'numeric' => 'Enter number',
+    ]),
+
+        //Commander Reserve
+             TextInput::make('commander_reserve')
+    ->label('Commander Reserve')
+    ->numeric()          // allow numbers only
+
+    ->validationMessages([
+        'numeric' => 'Enter number',
+    ]),
         //Remarks
                 TextInput::make('remarks')
-                  ->label('Remarks')
-                 
-                  ->required(),
+                  ->label('Remarks'),
+
+
             ])
             ->columns(2),
     ]);
@@ -162,49 +168,49 @@ class ItemsResource extends Resource
             ->label('#')
             ->sortable()
             ->size('sm')
-            ->weight(FontWeight::Light) 
+            ->weight(FontWeight::Light)
             ->toggleable()
-            ->fontFamily(FontFamily::Mono), 
+            ->fontFamily(FontFamily::Mono),
         Tables\Columns\TextColumn::make('item_code')
             ->label('Item Code')
-            ->searchable(isIndividual:true,isGlobal:false)
+            ->searchable(isIndividual: false, isGlobal: true)
             ->size('xs')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
 
 
         Tables\Columns\TextColumn::make('equipment_types.equipment_name')
             ->label('Equipment Type')
             ->size('xs')
-            ->weight(FontWeight::Light)             
+            ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans)
-            ->searchable(isIndividual:true,isGlobal:false),
+            ->searchable(isIndividual: false, isGlobal: true),
 
         Tables\Columns\TextColumn::make('title_names_id')
              ->label('Title Name')
              ->size('xs')
-             ->weight(FontWeight::Light)             
+             ->weight(FontWeight::Light)
              ->fontFamily(FontFamily::Sans)
-             ->searchable(isIndividual:true,isGlobal:false)
+             ->searchable(isIndividual: false, isGlobal: true)
              ->toggleable(isToggledHiddenByDefault:true),
 
         Tables\Columns\TextColumn::make('ictcategories.ictcategories_name')
              ->label('ICT Category')
              ->size('xs')
-             ->weight(FontWeight::Light)             
+             ->weight(FontWeight::Light)
              ->fontFamily(FontFamily::Sans)
-             ->searchable(isIndividual:true,isGlobal:false),
-             
+             ->searchable(isIndividual: false, isGlobal: true),
+
         Tables\Columns\TextColumn::make('title_names_id')
              ->label('Title Name')
              ->size('xs')
-             ->weight(FontWeight::Light)             
+             ->weight(FontWeight::Light)
              ->fontFamily(FontFamily::Sans)
-             ->searchable(isIndividual:true,isGlobal:false)
+             ->searchable(isIndividual: false, isGlobal: true)
              ,
             ])
             ->filters([
-               
+
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()->iconButton()->color('success'),
@@ -216,13 +222,13 @@ class ItemsResource extends Resource
                     ->tooltip('Restore Permissions')
                     ->color('warning'),
             ])
-                      
-                
-         
+
+
+
 
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                
+
                 ]),
             ]);
     }
@@ -230,7 +236,7 @@ class ItemsResource extends Resource
     public static function getRelations(): array
     {
         return [
-            
+
         ];
     }
 

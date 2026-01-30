@@ -104,7 +104,7 @@ public static function getTableQuery(): Builder
 
                 Tables\Columns\TextColumn::make('relevant_store_id')
                     ->label('Store')
-                    ->searchable(isIndividual: true, isGlobal: false)
+                    ->searchable(isIndividual: false, isGlobal: true)
                     ->size('xs')
                     ->weight(FontWeight::Light)
                     ->fontFamily(FontFamily::Sans),
@@ -114,7 +114,7 @@ public static function getTableQuery(): Builder
                     ->size('xs')
                     ->weight(FontWeight::Light)
                     ->fontFamily(FontFamily::Sans)
-                    ->searchable(isIndividual: true, isGlobal: false),
+                    ->searchable(isIndividual: false, isGlobal: true),
 
                 Tables\Columns\TextColumn::make('requestedstatus')
                     ->label('Status')

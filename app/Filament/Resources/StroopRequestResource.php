@@ -142,7 +142,7 @@ class StroopRequestResource extends Resource
 
                 Tables\Columns\TextColumn::make('relevant_store_id')
                     ->label('Store')
-                    ->searchable(isIndividual: true, isGlobal: false)
+                    ->searchable(isIndividual: false, isGlobal: true)
                     ->size('xs')
                     ->weight(FontWeight::Light)
                     ->fontFamily(FontFamily::Sans),
@@ -152,7 +152,7 @@ class StroopRequestResource extends Resource
                     ->size('xs')
                     ->weight(FontWeight::Light)
                     ->fontFamily(FontFamily::Sans)
-                    ->searchable(isIndividual: true, isGlobal: false),
+                    ->searchable(isIndividual: false, isGlobal: true),
 
                 Tables\Columns\TextColumn::make('requestedstatus')
                     ->label('Status')

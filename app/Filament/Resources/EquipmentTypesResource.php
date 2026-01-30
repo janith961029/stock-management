@@ -62,11 +62,13 @@ protected static ?string $policy = \App\Policies\EquipmentTypesPolicy::class;
             Tables\Columns\TextColumn::make('type_code')
             ->label('Type Code')
             ->sortable()
+            ->searchable(isIndividual: false, isGlobal: true)
             ->size('xs')
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             Tables\Columns\TextColumn::make('equipment_name')
                 ->label('Equipment Name')
+                ->searchable(isIndividual: false, isGlobal: true)
                 ->size('xs')
                 ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans),

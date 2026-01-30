@@ -61,7 +61,7 @@ public static function getNavigationBadge(): ?string
             Tables\Columns\TextColumn::make('vote_code')
             ->label('Vote Head')
             ->sortable()
-            ->searchable(isIndividual:true,isGlobal:false)
+            ->searchable(isIndividual: false, isGlobal: true)
             ->size('xs')
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),

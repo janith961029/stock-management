@@ -56,6 +56,7 @@ class StoreResource extends Resource
             Tables\Columns\TextColumn::make('stores')
             ->label('Stores')
             ->sortable()
+            ->searchable(isIndividual: false, isGlobal: true)
             ->size('xs')
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),

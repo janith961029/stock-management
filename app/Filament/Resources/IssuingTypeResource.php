@@ -53,6 +53,7 @@ class IssuingTypeResource extends Resource
             Tables\Columns\TextColumn::make('issuing_type')
             ->label('Issue Type')
             ->sortable()
+            ->searchable(isIndividual: false, isGlobal: true)
             ->size('xs')
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),

@@ -72,12 +72,14 @@ class TitlenamesResource extends Resource
             Tables\Columns\TextColumn::make('stores.stores')
             ->label('Stores')
             ->sortable()
+            ->searchable(isIndividual: false, isGlobal: true)
             ->size('xs')
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             Tables\Columns\TextColumn::make('title_name')
             ->label('Stores')
             ->sortable()
+            ->searchable(isIndividual: false, isGlobal: true)
             ->size('xs')
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),

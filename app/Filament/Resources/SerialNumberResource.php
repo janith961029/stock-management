@@ -158,7 +158,7 @@ public static function form(Form $form): Form
                             Forms\Components\Toggle::make('recieved')
                                 ->label('Received')
                                 ->columns(1)
-                                ->hidden()
+
                                 ->default(true),
                         ])
                         ->reactive()
@@ -229,7 +229,7 @@ Tables\Columns\TextColumn::make('title.title_names_id')
                 ->size('xs')
                 ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans)
-                ->searchable(isIndividual:true,isGlobal:false),
+                ->searchable(isIndividual: false, isGlobal: true),
 
             Tables\Columns\TextColumn::make('item.relevantstore.stores')
                 ->label('Relevant Store')
@@ -255,7 +255,7 @@ Tables\Columns\TextColumn::make('title.title_names_id')
             Tables\Columns\TextColumn::make('purchase_order_nos.purchase_order_no')
                 ->label('Purchase Order Number')
                 ->size('xs')
-                ->searchable(isIndividual:true,isGlobal:false)
+                ->searchable(isIndividual: false, isGlobal: true)
                 ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans)
                 ->toggleable(isToggledHiddenByDefault:false),
@@ -280,13 +280,13 @@ Tables\Columns\TextColumn::make('title.title_names_id')
                 ->size('xs')
                 ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans)
-                ->searchable(isIndividual:true,isGlobal:false),
+                ->searchable(isIndividual: false, isGlobal: true),
             Tables\Columns\TextColumn::make('ledger_card_no')
             ->label('Ledger card No')
             ->size('xs')
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans)
-            ->searchable(isIndividual:true,isGlobal:false)
+            ->searchable(isIndividual: false, isGlobal: true)
             ->toggleable(isToggledHiddenByDefault:true),
 
              Tables\Columns\TextColumn::make('country.name')
@@ -294,7 +294,7 @@ Tables\Columns\TextColumn::make('title.title_names_id')
              ->size('xs')
              ->weight(FontWeight::Light)
              ->fontFamily(FontFamily::Sans)
-             ->searchable(isIndividual:true,isGlobal:false)
+             ->searchable(isIndividual: false, isGlobal: true)
              ->toggleable(isToggledHiddenByDefault:true),
             ])
             ->filters([

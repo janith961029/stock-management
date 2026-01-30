@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\IssuingType;
 use App\Models\Items;
 use App\Models\Serial;
 use App\Models\SerialNumbers;
@@ -27,22 +28,33 @@ class DashboardInventoryTable extends TableWidget
             ->query($this->getBaseQuery())
             ->defaultSort('serial_numbers.id', 'desc')
             ->columns([
+                  Tables\Columns\TextColumn::make('Index')
+                    ->rowIndex()
+                    ->label('Ser'),
                 Tables\Columns\TextColumn::make('title_name')
                     ->label('Title Name')
+                    ->searchable(['items.title_names_id'], isIndividual: false, isGlobal: true)
                     ->formatStateUsing(fn ($state) => $this->cleanDisplayValue($state, 'N/A'))
                     ->wrap(),
                 Tables\Columns\TextColumn::make('model_name')
                     ->label('Model Name')
+                    ->searchable(['recive_items.model_name'], isIndividual: false, isGlobal: true)
                     ->formatStateUsing(fn ($state) => $this->cleanDisplayValue($state, 'N/A'))
                     ->wrap(),
                 Tables\Columns\TextColumn::make('serial_number')
                     ->label('Serial Number')
-                    ->searchable()
+                    ->searchable(['serial_numbers.serial_number'], isIndividual: false, isGlobal: true)
                     ->formatStateUsing(fn ($state) => $this->cleanDisplayValue($state, 'N/A')),
                 Tables\Columns\TextColumn::make('barcode')
                     ->label('Barcode')
+                    ->searchable(['serial_numbers.barcode'], isIndividual: false, isGlobal: true)
                     ->toggleable()
                     ->formatStateUsing(fn ($state) => $this->cleanDisplayValue($state, 'N/A')),
+                Tables\Columns\TextColumn::make('issuing_type')
+                    ->label('Issuing Type')
+                    ->searchable(['serial_numbers.issuing_type'], isIndividual: false, isGlobal: true)
+                    ->formatStateUsing(fn ($state) => $this->cleanDisplayValue($state, 'N/A'))
+                    ->wrap(),
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()
@@ -83,6 +95,19 @@ class DashboardInventoryTable extends TableWidget
 
                         return $query->where('recive_items.model_name', $value);
                     }),
+                SelectFilter::make('issuing_type')
+                    ->label('Issuing Type')
+                    ->options(fn (): array => $this->getIssuingTypeOptions())
+                    ->searchable()
+                    ->query(function (Builder $query, array $data): Builder {
+                        $value = $this->decodeIssuingTypeFilterValue($data['value'] ?? null);
+
+                        if (! $value || ! Schema::hasColumn('serial_numbers', 'issuing_type')) {
+                            return $query;
+                        }
+
+                        return $query->where('serial_numbers.issuing_type', $value);
+                    }),
                 SelectFilter::make('status')
                     ->label('Status')
                     ->options([
@@ -110,7 +135,9 @@ class DashboardInventoryTable extends TableWidget
                     }),
             ])
             ->filtersLayout(FiltersLayout::AboveContent)
-            ->filtersFormColumns(3);
+            ->filtersFormColumns(3)
+            ->paginationPageOptions([10])
+            ->defaultPaginationPageOption(10);
     }
 
     protected function getBaseQuery(): Builder
@@ -126,6 +153,7 @@ class DashboardInventoryTable extends TableWidget
                 'serial_numbers.issued',
                 DB::raw($this->convertToUtf8Expression('serial_numbers.serial_number') . ' as serial_number'),
                 DB::raw($this->convertToUtf8Expression('serial_numbers.barcode') . ' as barcode'),
+                DB::raw($this->convertToUtf8Expression('serial_numbers.issuing_type') . ' as issuing_type'),
                 DB::raw($this->convertToUtf8Expression('recive_items.model_name') . ' as model_name'),
                 DB::raw($this->convertToUtf8Expression('items.title_names_id') . ' as title_name'),
             ]);
@@ -199,7 +227,47 @@ class DashboardInventoryTable extends TableWidget
         return $options;
     }
 
+    protected function getIssuingTypeOptions(): array
+    {
+        if (! Schema::hasColumn('serial_numbers', 'issuing_type')) {
+            return [];
+        }
+
+        $types = IssuingType::query()
+            ->whereNotNull('issuing_type')
+            ->where('issuing_type', '!=', '')
+            ->distinct()
+            ->select(DB::raw($this->convertToUtf8Expression('issuing_type') . ' as issuing_type'))
+            ->orderBy('issuing_type')
+            ->pluck('issuing_type')
+            ->all();
+
+        $options = [];
+
+        foreach ($types as $type) {
+            $key = base64_encode((string) $type);
+            $options[$key] = $this->cleanDisplayValue($type, 'N/A');
+        }
+
+        return $options;
+    }
+
     protected function decodeModelNameFilterValue(?string $value): ?string
+    {
+        if (! $value) {
+            return null;
+        }
+
+        $decoded = base64_decode($value, true);
+
+        if ($decoded === false || $decoded === '') {
+            return null;
+        }
+
+        return $decoded;
+    }
+
+    protected function decodeIssuingTypeFilterValue(?string $value): ?string
     {
         if (! $value) {
             return null;
@@ -242,6 +310,11 @@ class DashboardInventoryTable extends TableWidget
         $modelValue = $filters['model_name']['value'] ?? null;
         if ($modelValue) {
             $params['model'] = $modelValue;
+        }
+
+        $issuingTypeValue = $filters['issuing_type']['value'] ?? null;
+        if ($issuingTypeValue) {
+            $params['issuing_type'] = $issuingTypeValue;
         }
 
         $statusValue = $filters['status']['value'] ?? null;

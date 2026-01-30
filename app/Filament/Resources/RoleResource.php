@@ -103,7 +103,7 @@ protected static ?string $policy = \App\Policies\RolePolicy::class;
                     ->rowIndex()
                     ->label('Ser'),
                 TextColumn::make('name')
-                    ->searchable()
+                    ->searchable(isIndividual: false, isGlobal: true)
                     ->sortable()
             ])
             ->filters([

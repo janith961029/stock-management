@@ -66,7 +66,7 @@ public static function getNavigationBadge(): ?string
             Tables\Columns\TextColumn::make('supplier')
             ->label('Supplier Name')
             ->sortable()
-            ->searchable(isIndividual:true,isGlobal:false)
+            ->searchable(isIndividual: false, isGlobal: true)
             ->size('xs')
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
@@ -78,7 +78,7 @@ public static function getNavigationBadge(): ?string
             Tables\Columns\TextColumn::make('tele')
             ->label('Tele')
             ->sortable()
-            ->searchable(isIndividual:true,isGlobal:false)
+            ->searchable(isIndividual: false, isGlobal: true)
             ->size('xs')
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),

@@ -152,7 +152,7 @@ class ReciveItemsResource extends Resource
                     ->placeholder('Quantity'),
                 Select::make('purchase_order_no')
                     ->label('Purchase Order No')
-                    ->options(PurchaseOrderNos::pluck('purchase_order_no', 'id'))
+                    ->options(PurchaseOrderNos::where('confirmed', 1)->pluck('purchase_order_no', 'id'))
                     ->searchable()->required(),
 
                 TextInput::make('itemprice')
@@ -172,13 +172,13 @@ class ReciveItemsResource extends Resource
 
                 DatePicker::make('received_date')
                     ->label('Received Date ')
-                    ->minDate(now())
-                    ->maxDate(now())
+                    ->minDate(today())
+                    ->maxDate(today())
                     ->rules(['date_equals:today'])
                     ->required(),
                 DatePicker::make('warrenty_expiry_date')
                     ->label('Warranty Expiry Date')
-                    ->minDate(now())
+                    ->minDate(today())
                     ->rules(['after_or_equal:today'])
                     ->required(),
 
@@ -205,7 +205,7 @@ class ReciveItemsResource extends Resource
             Tables\Columns\TextColumn::make('item_code')
                 ->label('Item Code')
                 ->sortable()
-                ->searchable(isIndividual:true,isGlobal:false)
+                ->searchable(isIndividual: false, isGlobal: true)
                 ->size('xs')
                 ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans),
@@ -215,20 +215,20 @@ class ReciveItemsResource extends Resource
                 ->size('xs')
                 ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans)
-                ->searchable(isIndividual:true,isGlobal:false),
+                ->searchable(isIndividual: false, isGlobal: true),
 
             Tables\Columns\TextColumn::make('title_names_id')
                 ->label('Title Name')
                 ->size('xs')
                 ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans)
-                ->searchable(isIndividual:true,isGlobal:false),
+                ->searchable(isIndividual: false, isGlobal: true),
             Tables\Columns\TextColumn::make('ictcategories.ictcategories_name')
              ->label('ICT Category')
              ->size('xs')
              ->weight(FontWeight::Light)
              ->fontFamily(FontFamily::Sans)
-             ->searchable(isIndividual:true,isGlobal:false),
+             ->searchable(isIndividual: false, isGlobal: true),
             ])
             ->filters([
                 //

@@ -57,6 +57,7 @@ protected static ?string $navigationGroup= 'Master Data';
             Tables\Columns\TextColumn::make('sig_unit_name')
             ->label('Signal Unit')
             ->sortable()
+            ->searchable(isIndividual: false, isGlobal: true)
             ->size('xs')
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),

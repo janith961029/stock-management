@@ -54,6 +54,7 @@ class RecPlacesResource extends Resource
             Tables\Columns\TextColumn::make('Rec_place')
             ->label('Issue Type')
             ->sortable()
+            ->searchable(isIndividual: false, isGlobal: true)
             ->size('xs')
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),

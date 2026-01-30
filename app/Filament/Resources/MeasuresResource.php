@@ -58,12 +58,14 @@ class MeasuresResource extends Resource
             Tables\Columns\TextColumn::make('measures_code')
             ->label('Measures Code')
             ->sortable()
+            ->searchable(isIndividual: false, isGlobal: true)
             ->size('xs')
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             Tables\Columns\TextColumn::make('measures_name')
             ->label('Measures Name')
             ->sortable()
+            ->searchable(isIndividual: false, isGlobal: true)
             ->size('xs')
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),

@@ -65,6 +65,7 @@ protected static ?string $policy = \App\Policies\ModelNamePolicy::class;
         Tables\Columns\TextColumn::make('model_names')
             ->label('Model Name')
             ->sortable()
+            ->searchable(isIndividual: false, isGlobal: true)
 
             ->size('xs')
             ->weight(FontWeight::Light)

@@ -151,7 +151,9 @@ class IssueItemResource extends Resource
 
         ->where(function ($query) {
             $query->whereNull('issue_place')
-                  ->orWhere('issue_place', '');
+                  ->orWhere('issue_place', '')
+                  ->orWhere('issue_place', 0)
+                  ->orWhere('issue_place', '0');
         })
 )
                                     ->schema([
@@ -257,7 +259,7 @@ Tables\Columns\TextColumn::make('model_name')
                 ->size('xs')
                 ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans)
-                ->searchable(isIndividual:true,isGlobal:false),
+                ->searchable(isIndividual: false, isGlobal: true),
 
             Tables\Columns\TextColumn::make('total_quantity')
                 ->label('Quantity')
@@ -302,7 +304,7 @@ Tables\Columns\TextColumn::make('model_name')
             Tables\Columns\TextColumn::make('purchase_order_nos.purchase_order_no')
                 ->label('Purchase Order Number')
                 ->size('xs')
-                ->searchable(isIndividual:true,isGlobal:false)
+                ->searchable(isIndividual: false, isGlobal: true)
                 ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans)
                 ->toggleable(isToggledHiddenByDefault:false),
@@ -326,20 +328,20 @@ Tables\Columns\TextColumn::make('model_name')
                 ->size('xs')
                 ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans)
-                ->searchable(isIndividual:true,isGlobal:false),
+                ->searchable(isIndividual: false, isGlobal: true),
             Tables\Columns\TextColumn::make('ledger_card_no')
             ->label('Ledger card No')
             ->size('xs')
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans)
-            ->searchable(isIndividual:true,isGlobal:false)
+            ->searchable(isIndividual: false, isGlobal: true)
             ->toggleable(isToggledHiddenByDefault:true),
 Tables\Columns\TextColumn::make('country.name')
              ->label('Country')
              ->size('xs')
              ->weight(FontWeight::Light)
              ->fontFamily(FontFamily::Sans)
-             ->searchable(isIndividual:true,isGlobal:false)
+             ->searchable(isIndividual: false, isGlobal: true)
              ->toggleable(isToggledHiddenByDefault:true),
             ])
             ->filters([

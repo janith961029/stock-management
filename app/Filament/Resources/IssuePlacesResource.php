@@ -25,6 +25,9 @@ class IssuePlacesResource extends Resource
 protected static ?string $navigationGroup= 'Master Data';
 protected static ?string $policy = \App\Policies\IssuePlacesPolicy::class;
     protected static ?string $navigationIcon = 'heroicon-o-building-library';
+      protected static ?string $navigationLabel= 'Establishments';
+    protected static ?string $pluralLabel = 'Establishments';
+    protected static ?string $label = 'Establishment';
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();
@@ -41,7 +44,7 @@ protected static ?string $policy = \App\Policies\IssuePlacesPolicy::class;
             ])
                     ->required(),
                 TextInput::make('place_discription')
-                    ->label('Place Discription')
+                    ->label('Place Description')
 
                     ->required(),
                 // Toggle::make('is_q5_unit')
@@ -61,11 +64,13 @@ protected static ?string $policy = \App\Policies\IssuePlacesPolicy::class;
             Tables\Columns\TextColumn::make('issue_place')
             ->label('Issue Place')
             ->sortable()
+            ->searchable(isIndividual: false, isGlobal: true)
             ->size('xs')
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
              Tables\Columns\TextColumn::make('place_discription')
-            ->label('Place Discription')
+             ->searchable(isIndividual: false, isGlobal: true)
+            ->label('Place Description')
             ->sortable()
             ->size('xs')
             ->weight(FontWeight::Light)

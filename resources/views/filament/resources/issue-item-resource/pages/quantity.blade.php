@@ -2,7 +2,7 @@
     <x-filament::section>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <!-- Total Quantity Card -->
-            <div class="fi-card flex flex-col gap-y-2 rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+            {{-- <div class="fi-card flex flex-col gap-y-2 rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
                 <div class="flex items-center gap-x-2">
                     <x-heroicon-o-cube class="h-5 w-5 text-primary-500" />
                     <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Quantity</span>
@@ -10,13 +10,13 @@
                 <div class="text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">
                     {{ $this->itemData['totalCount'] }}
                 </div>
-            </div>
+            </div> --}}
 
             <!-- Received Card -->
             <div class="fi-card flex flex-col gap-y-2 rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
                 <div class="flex items-center gap-x-2">
                     <x-heroicon-o-check-circle class="h-5 w-5 text-success-500" />
-                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Received</span>
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Received</span>
                 </div>
                 <div class="text-2xl font-semibold tracking-tight text-success-600 dark:text-success-400">
                     {{ $this->itemData['receivedCount'] }}
@@ -74,8 +74,8 @@
                             </td>
                             <td class="px-4 py-3 text-sm">
                                @php
-   
-    
+
+
         $statusColor = match(true) {
             $serial->issued == 1 => 'danger',   // Issued
             default              => 'warning',  // Available
@@ -90,11 +90,11 @@
     <span class="fi-badge fi-color-{{ $statusColor }} inline-flex items-center gap-x-1 rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset">
         {{ $statusText }}
     </span>
-               
 
 
 
-    
+
+
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">
                                 {{ $serial->issuing_type?? 'N/A' }}

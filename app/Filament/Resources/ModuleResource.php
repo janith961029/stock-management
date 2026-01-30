@@ -57,8 +57,8 @@ class ModuleResource extends Resource
                 TextColumn::make('Index')
                     ->rowIndex()
                     ->label('Ser'),
-                TextColumn::make('name')->searchable(),
-                TextColumn::make('details')->searchable()->label('Description')
+                TextColumn::make('name')->searchable(isIndividual: false, isGlobal: true),
+                TextColumn::make('details')->searchable(isIndividual: false, isGlobal: true)->label('Description')
             ])
             ->filters([
                 //

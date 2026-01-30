@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 
 class IssueItem extends Model
 {
@@ -13,7 +14,11 @@ protected $table = 'recive_items';
 
     public function serial_numbers()
     {
-        return $this->hasMany(SerialNumbers::class, 'serial_id', 'id');
+        $foreignKey = Schema::hasColumn('serial_numbers', 'serial_id')
+            ? 'serial_id'
+            : 'recive_items_id';
+
+        return $this->hasMany(SerialNumbers::class, $foreignKey, 'id');
     }
 
      public function purchase_order_nos()

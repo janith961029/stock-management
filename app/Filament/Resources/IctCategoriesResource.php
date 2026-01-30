@@ -61,6 +61,7 @@ class IctCategoriesResource extends Resource
             Tables\Columns\TextColumn::make('ictcategories_name')
             ->label('ICT Categories')
             ->sortable()
+            ->searchable(isIndividual: false, isGlobal: true)
             ->size('xs')
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),

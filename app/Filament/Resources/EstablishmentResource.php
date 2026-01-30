@@ -54,7 +54,7 @@ class EstablishmentResource extends Resource
         Tables\Columns\TextColumn::make('establishment')
             ->label('Establishment Name')
             ->sortable()
-            ->searchable(isIndividual:true,isGlobal:false)
+            ->searchable(isIndividual: false, isGlobal: true)
             ->size('xs')
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),

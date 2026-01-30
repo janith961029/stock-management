@@ -8,6 +8,7 @@ use App\Models\Establishment;
 use App\Models\PurchaseOrderNos;
 use App\Models\Supplier;
 use App\Models\Votes;
+use App\Models\IssuePlaces;
 use Filament\Actions\Action as ActionsAction;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -23,6 +24,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Actions\Action;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Facades\Filament;
+use Filament\Tables\Actions\Action as TableAction;
 
 class PurchaseOrderNosResource extends Resource
 { public static function canViewAny(): bool
@@ -80,14 +82,23 @@ class PurchaseOrderNosResource extends Resource
                                             ),
                     Select::make('rcvd_to')
                         ->label('Establishment')
-                        ->options(Establishment::pluck('establishment', 'id'))
-                        ->searchable()
-                     ->suffixAction(
-                                Forms\Components\Actions\Action::make('NewEstablishment')
-                                    ->icon('heroicon-o-plus')
-                                    ->url(\App\Filament\Resources\EstablishmentResource::getUrl('create'))
-                                    ->openUrlInNewTab()
-                                            ),
+                        ->options(IssuePlaces::pluck('issue_place', 'id'))
+                        ->searchable(),
+                    //  ->suffixAction(
+                    //             Forms\Components\Actions\Action::make('NewEstablishment')
+                    //                 ->icon('heroicon-o-plus')
+                    //                 ->url(\App\Filament\Resources\EstablishmentResource::getUrl('create'))
+                    //                 ->openUrlInNewTab()
+                    //                         ),
+                 TextInput::make('amount')
+
+                        ->label('Amount')
+                        ->prefix('Rs.')
+                        ->numeric()
+                        ->required(),
+                TextInput::make('p_order_remarks')
+                        ->label('Purchase Order Remarks'),
+
 
 ]) ])   ;
 
@@ -104,6 +115,7 @@ class PurchaseOrderNosResource extends Resource
             Tables\Columns\TextColumn::make('purchase_order_no')
             ->label('Item Name')
             ->sortable()
+            ->searchable(isIndividual: false, isGlobal: true)
             ->size('sm')
             ->weight(FontWeight::Light)             // lighter font
             ->fontFamily(FontFamily::Sans),
@@ -112,6 +124,7 @@ class PurchaseOrderNosResource extends Resource
             Tables\Columns\TextColumn::make('supplier.supplier')
             ->label('Supplier Name')
             ->sortable()
+            ->searchable(isIndividual: false, isGlobal: true)
             ->size('sm')
             ->weight(FontWeight::Light)             // lighter font
             ->fontFamily(FontFamily::Sans),
@@ -119,21 +132,58 @@ class PurchaseOrderNosResource extends Resource
             Tables\Columns\TextColumn::make('votes.vote_code')
             ->label('Vote Code')
             ->sortable()
+            ->searchable(isIndividual: false, isGlobal: true)
             ->size('sm')
             ->weight(FontWeight::Light)             // lighter font
             ->fontFamily(FontFamily::Sans),
 
-            Tables\Columns\TextColumn::make('establishment.establishment')
+            Tables\Columns\TextColumn::make('issuePlace.issue_place')
             ->label('Establishment')
+            ->sortable()
+            ->searchable(isIndividual: false, isGlobal: true)
+            ->size('sm')
+            ->weight(FontWeight::Light)             // lighter font
+            ->fontFamily(FontFamily::Sans),
+
+             Tables\Columns\TextColumn::make('amount')
+            ->label('Amount')
             ->sortable()
             ->size('sm')
             ->weight(FontWeight::Light)             // lighter font
             ->fontFamily(FontFamily::Sans),
+            Tables\Columns\TextColumn::make('p_order_remarks')
+            ->label('Purchase Order Remarks')
+            ->wrap()
+            ->size('sm')
+            ->weight(FontWeight::Light)             // lighter font
+            ->fontFamily(FontFamily::Sans),
+            Tables\Columns\TextColumn::make('confirmed')
+            ->label('Status')
+            ->badge()
+            ->formatStateUsing(fn ($state): string => ((int) $state === 1) ? 'Verified' : 'Pending')
+            ->color(fn ($state): string => ((int) $state === 1) ? 'success' : 'warning')
+            ->sortable(),
             ])
+            ->defaultSort('confirmed', 'asc')
             ->filters([
                 //
             ])
            ->actions([
+    TableAction::make('confirm')
+        ->icon('heroicon-o-check-circle')
+        ->iconButton()
+        ->color('success')
+        ->tooltip('Confirm')
+        ->visible(fn (PurchaseOrderNos $record): bool =>
+            ! (bool) $record->confirmed
+            && (Filament::auth()->user()?->hasRole('OCSO OC') ?? false)
+        )
+        ->requiresConfirmation()
+        ->action(fn (PurchaseOrderNos $record) => $record->update([
+            'confirmed' => true,
+            'confirmed_user' => Filament::auth()->id(),
+            'confirmed_date' => now(),
+        ])),
     Tables\Actions\ViewAction::make()
         ->iconButton()
         ->color('success')
@@ -173,6 +223,20 @@ class PurchaseOrderNosResource extends Resource
                 Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        // $user = Filament::auth()->user();
+
+        // if ($user?->hasRole('OCSO Clerk')) {
+        //     $query->where('confirmed', 1);
+        // } elseif ($user?->hasRole('OCSO OC')) {
+        //     $query->where('confirmed', 0);
+        // }
+
+        return $query;
     }
 
     public static function getRelations(): array
