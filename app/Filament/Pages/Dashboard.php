@@ -34,14 +34,14 @@ class Dashboard extends BaseDashboard
     {
         return [
             Action::make('toggleInventoryTable')
-                ->label(fn (): string => $this->showInventoryTable ? 'Hide Inventory Table' : 'Show Inventory Table')
+                ->label(fn (): string => $this->showInventoryTable ? 'Hide Item Details' : 'Show Item Details')
                 ->icon(fn (): string => $this->showInventoryTable ? 'heroicon-o-eye-slash' : 'heroicon-o-eye')
                 ->color(fn (): string => $this->showInventoryTable ? 'warning' : 'primary')
                 ->action(function (): void {
                     $this->showInventoryTable = ! $this->showInventoryTable;
                 }),
             Action::make('toggleOldInventoryTable')
-                ->label(fn (): string => $this->showOldInventoryTable ? 'Hide Old Inventory Table' : 'Show Old Inventory Table')
+                ->label(fn (): string => $this->showOldInventoryTable ? 'Hide Old Item Details' : 'Show Old Item Details')
                 ->icon(fn (): string => $this->showOldInventoryTable ? 'heroicon-o-eye-slash' : 'heroicon-o-eye')
                 ->color(fn (): string => $this->showOldInventoryTable ? 'warning' : 'primary')
                 ->action(function (): void {

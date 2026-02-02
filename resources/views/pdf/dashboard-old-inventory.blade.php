@@ -71,6 +71,7 @@
         <table>
             <thead>
                 <tr>
+                    <th>Count</th>
                     <th>Barcode</th>
                     <th>Item Name</th>
                     <th>Serial Number</th>
@@ -84,6 +85,7 @@
             <tbody>
                 @forelse ($records as $record)
                     <tr>
+                        <td>{{ $loop->iteration }}</td>
                         <td>{{ $record['barcode'] ?? 'N/A' }}</td>
                         <td>{{ $record['name'] ?? 'N/A' }}</td>
                         <td>{{ $record['serial_number'] ?? 'N/A' }}</td>
@@ -95,7 +97,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8">No records found.</td>
+                        <td colspan="9">No records found.</td>
                     </tr>
                 @endforelse
             </tbody>

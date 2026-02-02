@@ -13,21 +13,23 @@ class DashboardOldInventoryPdfController extends Controller
 {
     public function download(Request $request)
     {
+        $this->prepareLongRunningExport();
+
         $records = $this->buildQuery($request)
-            ->get()
-            ->map(function (Quantities $record): array {
+            ->toBase()
+            ->cursor()
+            ->map(function (object $record): array {
                 return [
-                    'barcode' => $this->cleanPdfValue($record->barcode ?? null),
-                    'name' => $this->cleanPdfValue($record->name ?? null),
-                    'serial_number' => $this->cleanPdfValue($record->serial_number ?? null),
-                    'issue_place' => $this->cleanPdfValue($record->issue_place ?? null),
-                    'issuing_type' => $this->cleanPdfValue($record->issuing_type_name ?? null),
-                    'signal_unit' => $this->cleanPdfValue($record->signal_unit_name ?? null),
-                    'issue_date' => $this->cleanPdfValue($record->issue_date ?? null),
-                    'warrenty_expiry_date' => $this->cleanPdfValue($record->warrenty_expiry_date ?? null),
+                    'barcode' => $this->cleanPdfValue($this->recordValue($record, 'barcode')),
+                    'name' => $this->cleanPdfValue($this->recordValue($record, 'name')),
+                    'serial_number' => $this->cleanPdfValue($this->resolveSnNumberValue($record)),
+                    'issue_place' => $this->cleanPdfValue($this->recordValue($record, 'issue_place')),
+                    'issuing_type' => $this->cleanPdfValue($this->recordValue($record, 'issuing_type_name')),
+                    'signal_unit' => $this->cleanPdfValue($this->recordValue($record, 'signal_unit_name')),
+                    'issue_date' => $this->cleanPdfValue($this->recordValue($record, 'issue_date')),
+                    'warrenty_expiry_date' => $this->cleanPdfValue($this->recordValue($record, 'warrenty_expiry_date')),
                 ];
-            })
-            ->all();
+            });
 
         return Pdf::loadView('pdf.dashboard-old-inventory', [
             'records' => $records,
@@ -48,14 +50,20 @@ class DashboardOldInventoryPdfController extends Controller
         }
 
         if ($hasSignalUnitsTable) {
-            $query->leftJoin('signal_units', 'quantities.signal_unit', '=', 'signal_units.id');
+            $query->leftJoin('signal_units', function ($join) {
+                $join->on(
+                    DB::raw('CAST(signal_units.id AS CHAR)'),
+                    '=',
+                    DB::raw('CAST(quantities.signal_unit AS CHAR)')
+                );
+            });
         }
 
         $select = [
             'quantities.id',
             $this->selectColumnOrFallback('quantities.barcode', 'barcode'),
             $this->selectColumnOrFallback('quantities.name', 'name'),
-            $this->selectColumnOrFallback('quantities.serial_number', 'serial_number'),
+            $this->selectSerialNumberColumn(),
             $this->selectColumnOrFallback('quantities.issue_place', 'issue_place'),
             $this->selectColumnOrFallback('quantities.issue_date', 'issue_date'),
             $this->selectColumnOrFallback('quantities.warrenty_expiry_date', 'warrenty_expiry_date'),
@@ -64,13 +72,21 @@ class DashboardOldInventoryPdfController extends Controller
         ];
 
         $query->select($select)
-            ->orderByDesc('quantities.id')
+            ->orderBy('quantities.id')
             ->limit($this->resolveLimit($request));
 
         if ($request->filled('issue_place') && Schema::hasColumn('quantities', 'issue_place')) {
             $decoded = $this->decodeFilterValue($request->input('issue_place'));
-            if ($decoded !== null) {
-                $query->where('quantities.issue_place', $decoded);
+            $normalizedKey = $this->getIssuePlaceNormalizationKey($decoded);
+
+            if ($normalizedKey !== null) {
+                $variants = $this->getIssuePlaceVariantsByNormalizedKey($normalizedKey);
+
+                if ($variants === []) {
+                    $query->whereRaw('1 = 0');
+                } else {
+                    $query->whereIn('quantities.issue_place', $variants);
+                }
             }
         }
 
@@ -85,20 +101,25 @@ class DashboardOldInventoryPdfController extends Controller
         return $query;
     }
 
-    protected function resolveLimit(Request $request): int
+    protected function prepareLongRunningExport(): void
     {
-        $hasFilters = $request->filled('issue_place')
-            || $request->filled('issuing_type')
-            || $request->filled('signal_unit');
-
-        $default = $hasFilters ? 2000 : 500;
-        $limit = (int) $request->input('limit', $default);
-
-        if ($limit < 1) {
-            return $default;
+        if (function_exists('set_time_limit')) {
+            @set_time_limit(0);
         }
 
-        return min($limit, 5000);
+        @ini_set('max_execution_time', '0');
+        @ini_set('memory_limit', '-1');
+    }
+
+    protected function resolveLimit(Request $request): int
+    {
+        $limit = (int) $request->input('limit', 1000);
+
+        if ($limit < 1) {
+            return 1000;
+        }
+
+        return min($limit, 1000);
     }
 
     protected function selectColumnOrFallback(string $column, string $alias)
@@ -123,6 +144,27 @@ class DashboardOldInventoryPdfController extends Controller
         }
 
         return DB::raw($this->convertToUtf8Expression('quantities.issuing_type') . ' as issuing_type_name');
+    }
+
+    protected function selectSerialNumberColumn()
+    {
+        if (Schema::hasColumn('quantities', 'serial_number')) {
+            return DB::raw($this->convertToUtf8Expression('quantities.serial_number') . ' as serial_number');
+        }
+
+        if (Schema::hasColumn('quantities', 'sn_number')) {
+            return DB::raw($this->convertToUtf8Expression('quantities.sn_number') . ' as serial_number');
+        }
+
+        if (Schema::hasColumn('quantities', 'sn_no')) {
+            return DB::raw($this->convertToUtf8Expression('quantities.sn_no') . ' as serial_number');
+        }
+
+        if (Schema::hasColumn('quantities', 'serial_no')) {
+            return DB::raw($this->convertToUtf8Expression('quantities.serial_no') . ' as serial_number');
+        }
+
+        return DB::raw("'N/A' as serial_number");
     }
 
     protected function selectSignalUnitColumn(bool $hasSignalUnitsTable)
@@ -151,6 +193,49 @@ class DashboardOldInventoryPdfController extends Controller
         }
 
         return $decoded;
+    }
+
+    protected function normalizeIssuePlace(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $normalized = (string) $value;
+
+        $normalized = preg_replace('/[\x{200B}-\x{200D}\x{FEFF}]/u', '', $normalized) ?? $normalized;
+        $normalized = preg_replace('/\x{00A0}/u', ' ', $normalized) ?? $normalized;
+        $normalized = preg_replace('/\s+/u', ' ', $normalized) ?? $normalized;
+        $normalized = trim($normalized);
+
+        return $normalized === '' ? null : $normalized;
+    }
+
+    protected function getIssuePlaceNormalizationKey(mixed $value): ?string
+    {
+        $normalized = $this->normalizeIssuePlace($value);
+
+        if ($normalized === null) {
+            return null;
+        }
+
+        if (function_exists('mb_strtolower')) {
+            return mb_strtolower($normalized, 'UTF-8');
+        }
+
+        return strtolower($normalized);
+    }
+
+    protected function getIssuePlaceVariantsByNormalizedKey(string $normalizedKey): array
+    {
+        return Quantities::query()
+            ->whereNotNull('issue_place')
+            ->where('issue_place', '!=', '')
+            ->pluck('issue_place')
+            ->filter(fn ($place) => $this->getIssuePlaceNormalizationKey($place) === $normalizedKey)
+            ->unique()
+            ->values()
+            ->all();
     }
 
     protected function convertToUtf8Expression(string $column): string
@@ -206,5 +291,34 @@ class DashboardOldInventoryPdfController extends Controller
         }
 
         return $string;
+    }
+
+    protected function resolveSnNumberValue(object|array $record): ?string
+    {
+        $serial = $this->recordValue($record, 'serial_number');
+
+        if ($serial !== null && $serial !== '') {
+            return (string) $serial;
+        }
+
+        $barcode = (string) ($this->recordValue($record, 'barcode') ?? '');
+
+        if ($barcode !== '' && preg_match('/SN\s*CODE\s*:?\s*(.+)$/i', $barcode, $matches) === 1) {
+            $parsed = trim((string) ($matches[1] ?? ''));
+            if ($parsed !== '') {
+                return $parsed;
+            }
+        }
+
+        return null;
+    }
+
+    protected function recordValue(object|array $record, string $key): mixed
+    {
+        if (is_array($record)) {
+            return $record[$key] ?? null;
+        }
+
+        return $record->{$key} ?? null;
     }
 }

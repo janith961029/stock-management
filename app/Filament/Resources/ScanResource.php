@@ -48,7 +48,9 @@ protected static ?int $navigationSort = 4;
         return $table
            ->columns([
 
-
+    Tables\Columns\TextColumn::make('Index')
+                    ->rowIndex()
+                    ->label('Ser'),
     Tables\Columns\TextColumn::make('barcode')
     ->formatStateUsing(fn ($state) => str_replace('SN CODE : SN', '', $state)) // display only
     ->label('Barcode')
@@ -146,12 +148,12 @@ Tables\Columns\TextColumn::make('recive_item.model_name')
                 Tables\Actions\ViewAction::make()->iconButton()->color('success'),
                 Tables\Actions\EditAction::make()->iconButton(),
                 Tables\Actions\DeleteAction::make()->iconButton(),
-                ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+                ]);
+            // ->bulkActions([
+            //     Tables\Actions\BulkActionGroup::make([
+            //     Tables\Actions\DeleteBulkAction::make(),
+            //     ]),
+            // ]);
     }
 
     public static function getRelations(): array

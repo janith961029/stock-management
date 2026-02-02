@@ -132,15 +132,10 @@ class StroopRequestResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->label('#')
-                    ->sortable()
-                    ->size('sm')
-                    ->weight(FontWeight::Light)
-                    ->toggleable()
-                    ->fontFamily(FontFamily::Mono),
-
-                Tables\Columns\TextColumn::make('relevant_store_id')
+                Tables\Columns\TextColumn::make('Index')
+                    ->rowIndex()
+                    ->label('Ser'),
+                Tables\Columns\TextColumn::make('store.stores')
                     ->label('Store')
                     ->searchable(isIndividual: false, isGlobal: true)
                     ->size('xs')
@@ -230,7 +225,7 @@ class StroopRequestResource extends Resource
 // ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                //     Tables\Actions\DeleteBulkAction::make(),
                     PrintBulkAction::make(),
                 ]),
             ]);

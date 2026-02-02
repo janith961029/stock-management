@@ -16,4 +16,10 @@ class Csoapproval extends Model
         return $this->belongsTo(TitleNames::class, 'title_names_id');
     }
 
+ public function store()
+{
+    return $this->belongsTo(Store::class, 'relevant_store_id', 'id');
+}
+
+
 }

@@ -28,6 +28,9 @@ class CsoapprovalResource extends Resource
      protected static ?int $navigationSort = 2;
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
     protected static ?string $navigationLabel= 'Comfirm Items';
+
+    protected static ?string $pluralLabel = 'OCSO Approvals';
+    protected static ?string $label = 'OCSO Approval';
     public static function form(Form $form): Form
     {
         return $form
@@ -139,15 +142,10 @@ public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->label('#')
-                    ->sortable()
-                    ->size('sm')
-                    ->weight(FontWeight::Light)
-                    ->toggleable()
-                    ->fontFamily(FontFamily::Mono),
-
-                Tables\Columns\TextColumn::make('relevant_store_id')
+              Tables\Columns\TextColumn::make('Index')
+                    ->rowIndex()
+                    ->label('Ser'),
+  Tables\Columns\TextColumn::make('store.stores')
                     ->label('Store')
                     ->searchable(isIndividual: false, isGlobal: true)
                     ->size('xs')
@@ -215,7 +213,7 @@ public static function table(Table $table): Table
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                     PrintBulkAction::make(),
                 ]),
             ]);

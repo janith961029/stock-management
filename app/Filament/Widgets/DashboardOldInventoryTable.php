@@ -91,13 +91,21 @@ class DashboardOldInventoryTable extends TableWidget
                     ->options(fn (): array => $this->getIssuePlaceOptions())
                     ->searchable()
                     ->query(function (Builder $query, array $data): Builder {
-                        $value = $this->decodeFilterValue($data['value'] ?? null);
+                        $normalizedKey = $this->getIssuePlaceNormalizationKey(
+                            $this->decodeFilterValue($data['value'] ?? null)
+                        );
 
-                        if (! $value || ! Schema::hasColumn('quantities', 'issue_place')) {
+                        if (! $normalizedKey || ! Schema::hasColumn('quantities', 'issue_place')) {
                             return $query;
                         }
 
-                        return $query->where('quantities.issue_place', $value);
+                        $variants = $this->getIssuePlaceVariantsByNormalizedKey($normalizedKey);
+
+                        if ($variants === []) {
+                            return $query->whereRaw('1 = 0');
+                        }
+
+                        return $query->whereIn('quantities.issue_place', $variants);
                     }),
                 SelectFilter::make('issuing_type')
                     ->label('Issue Type')
@@ -130,6 +138,7 @@ class DashboardOldInventoryTable extends TableWidget
             ->filtersFormColumns(3)
             ->paginationPageOptions([10])
             ->defaultPaginationPageOption(10);
+
     }
 
     protected function getBaseQuery(): Builder
@@ -162,10 +171,30 @@ class DashboardOldInventoryTable extends TableWidget
             ->pluck('issue_place')
             ->all();
 
-        $options = [];
+        $deduped = [];
 
         foreach ($places as $place) {
-            $key = base64_encode((string) $place);
+            $normalized = $this->normalizeIssuePlace($place);
+
+            if ($normalized === null) {
+                continue;
+            }
+
+            $key = $this->getIssuePlaceNormalizationKey($normalized);
+
+            if ($key === null) {
+                continue;
+            }
+
+            if (! isset($deduped[$key])) {
+                $deduped[$key] = $normalized;
+            }
+        }
+
+        $options = [];
+
+        foreach ($deduped as $place) {
+            $key = base64_encode($place);
             $options[$key] = $this->cleanDisplayValue($place, 'N/A');
         }
 
@@ -215,6 +244,49 @@ class DashboardOldInventoryTable extends TableWidget
         }
 
         return $decoded;
+    }
+
+    protected function normalizeIssuePlace(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $normalized = (string) $value;
+
+        $normalized = preg_replace('/[\x{200B}-\x{200D}\x{FEFF}]/u', '', $normalized) ?? $normalized;
+        $normalized = preg_replace('/\x{00A0}/u', ' ', $normalized) ?? $normalized;
+        $normalized = preg_replace('/\s+/u', ' ', $normalized) ?? $normalized;
+        $normalized = trim($normalized);
+
+        return $normalized === '' ? null : $normalized;
+    }
+
+    protected function getIssuePlaceNormalizationKey(mixed $value): ?string
+    {
+        $normalized = $this->normalizeIssuePlace($value);
+
+        if ($normalized === null) {
+            return null;
+        }
+
+        if (function_exists('mb_strtolower')) {
+            return mb_strtolower($normalized, 'UTF-8');
+        }
+
+        return strtolower($normalized);
+    }
+
+    protected function getIssuePlaceVariantsByNormalizedKey(string $normalizedKey): array
+    {
+        return Quantities::query()
+            ->whereNotNull('issue_place')
+            ->where('issue_place', '!=', '')
+            ->pluck('issue_place')
+            ->filter(fn ($place) => $this->getIssuePlaceNormalizationKey($place) === $normalizedKey)
+            ->unique()
+            ->values()
+            ->all();
     }
 
     protected function getPdfUrl(): string

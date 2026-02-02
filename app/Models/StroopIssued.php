@@ -6,7 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class StroopIssued extends Model
 {
-    protected $table = 'csoapprovals'; 
+    protected $table = 'csoapprovals';
         protected $guarded = [];
-    protected $primaryKey = 'id'; 
+    protected $primaryKey = 'id';
+ public function store()
+{
+    return $this->belongsTo(Store::class, 'relevant_store_id', 'id');
+}
+
+
 }

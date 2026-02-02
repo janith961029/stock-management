@@ -30,6 +30,9 @@ class StroopIssuedResource extends Resource
     protected static ?string $policy = \App\Policies\StroopIssuedPolicy::class;
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
     protected static ?string $navigationLabel= 'Stroop Issued';
+
+    protected static ?string $pluralLabel = 'Issued Items';
+    protected static ?string $label = ' Issued Item';
     public static function form(Form $form): Form
     {
        return $form
@@ -94,15 +97,11 @@ public static function getTableQuery(): Builder
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->label('#')
-                    ->sortable()
-                    ->size('sm')
-                    ->weight(FontWeight::Light)
-                    ->toggleable()
-                    ->fontFamily(FontFamily::Mono),
+             Tables\Columns\TextColumn::make('Index')
+                    ->rowIndex()
+                    ->label('Ser'),
 
-                Tables\Columns\TextColumn::make('relevant_store_id')
+               Tables\Columns\TextColumn::make('store.stores')
                     ->label('Store')
                     ->searchable(isIndividual: false, isGlobal: true)
                     ->size('xs')
@@ -174,7 +173,7 @@ public static function getTableQuery(): Builder
 ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                     PrintBulkAction::make(),
                 ]),
             ]);

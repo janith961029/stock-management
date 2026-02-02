@@ -154,7 +154,12 @@ public static function form(Form $form): Form
                         ->disableItemDeletion()
                         ->schema([
                             Forms\Components\TextInput::make('serial_number')->required(),
-                            Forms\Components\TextInput::make('barcode')->required(),
+                            Forms\Components\TextInput::make('barcode')
+                                ->required()
+                                ->numeric()
+                                ->integer()
+                                ->minValue(30000)
+                                ->rules(['required', 'integer', 'min:30000']),
                             Forms\Components\Toggle::make('recieved')
                                 ->label('Received')
                                 ->columns(1)

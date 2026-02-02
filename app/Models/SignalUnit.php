@@ -10,4 +10,5 @@ class SignalUnit extends Model
 
     protected $table = 'signal_units'; 
     protected $primaryKey = 'id'; 
+    protected $fillable = ['sig_unit_name'];
 }

@@ -100,11 +100,11 @@ public static function getNavigationBadge(): ?string
                 Tables\Actions\DeleteAction::make()->iconButton(),
 
 
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),  ]);
+            ]);
+            // ->bulkActions([
+            //     Tables\Actions\BulkActionGroup::make([
+            //         Tables\Actions\DeleteBulkAction::make(),
+            //     ]),  ]);
     }
 
     public static function getRelations(): array
