@@ -41,12 +41,13 @@ class DashboardInventoryPdfController extends Controller
         $query = SerialNumbers::query()
             ->leftJoin('recive_items', $serialJoinColumn, '=', 'recive_items.id')
             ->leftJoin('items', $reciveItemsJoinColumn, '=', 'items.id')
+            ->leftJoin('model_names', 'recive_items.model_name', '=', 'model_names.id')
             ->select([
                 'serial_numbers.id',
                 'serial_numbers.issued',
                 DB::raw($this->convertToUtf8Expression('serial_numbers.serial_number') . ' as serial_number'),
                 DB::raw($this->convertToUtf8Expression('serial_numbers.barcode') . ' as barcode'),
-                DB::raw($this->convertToUtf8Expression('recive_items.model_name') . ' as model_name'),
+                DB::raw($this->convertToUtf8Expression('model_names.model_names') . ' as model_name'),
                 DB::raw($this->convertToUtf8Expression('items.title_names_id') . ' as title_name'),
             ])
             ->orderByDesc('serial_numbers.id');

@@ -4,7 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Models\IssuingType;
 use App\Models\Items;
-use App\Models\Serial;
+use App\Models\ModelName;
 use App\Models\SerialNumbers;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
@@ -38,7 +38,7 @@ class DashboardInventoryTable extends TableWidget
                     ->wrap(),
                 Tables\Columns\TextColumn::make('model_name')
                     ->label('Model Name')
-                    ->searchable(['recive_items.model_name'], isIndividual: false, isGlobal: true)
+                    ->searchable(['model_names.model_names'], isIndividual: false, isGlobal: true)
                     ->formatStateUsing(fn ($state) => $this->cleanDisplayValue($state, 'N/A'))
                     ->wrap(),
                 Tables\Columns\TextColumn::make('serial_number')
@@ -148,13 +148,14 @@ class DashboardInventoryTable extends TableWidget
         return SerialNumbers::query()
             ->leftJoin('recive_items', $serialJoinColumn, '=', 'recive_items.id')
             ->leftJoin('items', $reciveItemsJoinColumn, '=', 'items.id')
+            ->leftJoin('model_names', 'recive_items.model_name', '=', 'model_names.id')
             ->select([
                 'serial_numbers.id',
                 'serial_numbers.issued',
                 DB::raw($this->convertToUtf8Expression('serial_numbers.serial_number') . ' as serial_number'),
                 DB::raw($this->convertToUtf8Expression('serial_numbers.barcode') . ' as barcode'),
                 DB::raw($this->convertToUtf8Expression('serial_numbers.issuing_type') . ' as issuing_type'),
-                DB::raw($this->convertToUtf8Expression('recive_items.model_name') . ' as model_name'),
+                DB::raw($this->convertToUtf8Expression('model_names.model_names') . ' as model_name'),
                 DB::raw($this->convertToUtf8Expression('items.title_names_id') . ' as title_name'),
             ]);
     }
@@ -204,24 +205,25 @@ class DashboardInventoryTable extends TableWidget
 
     protected function getModelNameOptions(): array
     {
-        if (! Schema::hasColumn('recive_items', 'model_name')) {
+        if (! Schema::hasColumn('model_names', 'model_names')) {
             return [];
         }
 
-        $models = Serial::query()
-            ->whereNotNull('model_name')
-            ->where('model_name', '!=', '')
-            ->distinct()
-            ->select(DB::raw($this->convertToUtf8Expression('model_name') . ' as model_name'))
+        $models = ModelName::query()
+            ->select([
+                'id',
+                DB::raw($this->convertToUtf8Expression('model_names') . ' as model_name'),
+            ])
+            ->whereNotNull('model_names')
+            ->where('model_names', '!=', '')
             ->orderBy('model_name')
-            ->pluck('model_name')
-            ->all();
+            ->get();
 
         $options = [];
 
         foreach ($models as $model) {
-            $key = base64_encode((string) $model);
-            $options[$key] = $this->cleanDisplayValue($model, 'N/A');
+            $key = base64_encode((string) $model->id);
+            $options[$key] = $this->cleanDisplayValue($model->model_name, 'N/A');
         }
 
         return $options;
