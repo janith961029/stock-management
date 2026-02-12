@@ -44,12 +44,25 @@ public function country()
     }
   public function item()
 {
-    return $this->belongsTo(Items::class,'recive_items_id','id'); // foreign key = items.id
+    $foreignKey = Schema::hasColumn('recive_items', 'recive_items_id')
+        ? 'recive_items_id'
+        : 'items_id';
+
+    return $this->belongsTo(Items::class, $foreignKey, 'id');
 }
 
   public function title()
 {
-    return $this->belongsTo(Items::class, 'recive_items_id','id'); // wrong FK
+    $foreignKey = Schema::hasColumn('recive_items', 'recive_items_id')
+        ? 'recive_items_id'
+        : 'items_id';
+
+    return $this->belongsTo(Items::class, $foreignKey, 'id');
+}
+
+    public function modelName()
+{
+    return $this->belongsTo(ModelName::class, 'model_name', 'id');
 }
 
 

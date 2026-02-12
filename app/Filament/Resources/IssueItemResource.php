@@ -39,6 +39,7 @@ use App\Models\IssuingType;
 use App\Models\IssuePlaces;
 use App\Models\RecPlaces;
 use App\Models\SerialNumbers;
+use App\Models\ModelName;
 use Filament\Forms\Components\CheckboxList;
 use App\Models\SignalUnit;
 use App\Models\Store;
@@ -46,6 +47,7 @@ use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Grid;
+use Illuminate\Support\Facades\Schema;
 
 class IssueItemResource extends Resource
 {
@@ -186,6 +188,7 @@ class IssueItemResource extends Resource
                                             ->options(IssuingType::pluck('issuing_type','issuing_type'))
                                             ->searchable()
                                             ->columnSpan(1)
+                                            ->reactive()
                                             ->visible(fn (Get $get) => (bool) $get('issued'))
                                             ->dehydrated(fn (Get $get) => (bool) $get('issued'))
                                             ->required(fn (Get $get) => (bool) $get('issued')),
@@ -195,7 +198,8 @@ class IssueItemResource extends Resource
                                             ->columnSpan(1)
                                             ->visible(fn (Get $get) => (bool) $get('issued'))
                                             ->dehydrated(fn (Get $get) => (bool) $get('issued'))
-                                            ->required(fn (Get $get) => (bool) $get('issued')),
+                                            ->required(fn (Get $get) => (bool) $get('issued') && $get('issuing_type') === 'Job Card'),
+
 
                                         Select::make('signal_unit')
                                             ->label('Signal Unit')
@@ -239,33 +243,70 @@ public static function table(Table $table): Table
                 ->size('sm')
                 ->weight(FontWeight::Light)
                 ->toggleable()
+                ->searchable()
                 ->fontFamily(FontFamily::Mono),
 
           Tables\Columns\TextColumn::make('item.item_code')
                 ->label('Item Code')
                 ->sortable()
+                ->searchable()
                 ->size('xs')
                 ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans),
-Tables\Columns\TextColumn::make('title.title_names_id')
+Tables\Columns\TextColumn::make('item.title_names_id')
 
             ->label('Title Name')
             ->sortable()
             ->size('sm')
             ->weight(FontWeight::Light)
-            ->fontFamily(FontFamily::Sans),
+            ->fontFamily(FontFamily::Sans)
+            ->searchable(),
 Tables\Columns\TextColumn::make('model_name')
                 ->label('Model Name')
                 ->size('xs')
                 ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans)
-                ->searchable(isIndividual: false, isGlobal: true),
+                ->getStateUsing(static function (IssueItem $record): ?string {
+                    static $modelNameCache = null;
+
+                    if ($modelNameCache === null) {
+                        $modelNameCache = ModelName::query()
+                            ->pluck('model_names', 'id')
+                            ->all();
+                    }
+
+                    if (array_key_exists($record->model_name, $modelNameCache)) {
+                        return $modelNameCache[$record->model_name];
+                    }
+
+                    return filled($record->model_name) ? (string) $record->model_name : null;
+                })
+                ->searchable(true, static function (Builder $query, string $search): Builder {
+                    $search = trim($search);
+
+                    if ($search === '') {
+                        return $query;
+                    }
+
+                    $table = $query->getModel()->getTable();
+
+                    return $query->where(function (Builder $query) use ($search, $table): void {
+                        $query->where("{$table}.model_name", 'like', "%{$search}%")
+                            ->orWhereExists(function ($subquery) use ($search, $table): void {
+                                $subquery->selectRaw('1')
+                                    ->from('model_names')
+                                    ->whereColumn('model_names.id', "{$table}.model_name")
+                                    ->where('model_names.model_names', 'like', "%{$search}%");
+                            });
+                    });
+                }),
 
             Tables\Columns\TextColumn::make('total_quantity')
                 ->label('Quantity')
                 ->size('xs')
                 ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans)
+                ->searchable()
                 ->toggleable(isToggledHiddenByDefault:false),
                  Tables\Columns\TextColumn::make('available_count')
                 ->label('Available')
@@ -279,32 +320,51 @@ Tables\Columns\TextColumn::make('model_name')
 
                     return $available > 0 ? $available : 0;
                 })
-                ->formatStateUsing(static fn (int $state): string => (string) $state),
+                ->formatStateUsing(static fn (int $state): string => (string) $state)
+                ->searchable(true, static function (Builder $query, string $search): Builder {
+                    $search = trim($search);
+
+                    if ($search === '') {
+                        return $query;
+                    }
+
+                    $table = $query->getModel()->getTable();
+                    $serialForeignKey = Schema::hasColumn('serial_numbers', 'serial_id')
+                        ? 'serial_id'
+                        : 'recive_items_id';
+                    $issuedCountSubquery = "(select count(*) from serial_numbers where serial_numbers.{$serialForeignKey} = {$table}.id and serial_numbers.issued = 1)";
+                    $availableExpr = "(CAST({$table}.total_quantity AS SIGNED) - {$issuedCountSubquery})";
+
+                    return $query->whereRaw("{$availableExpr} like ?", ["%{$search}%"]);
+                }),
             Tables\Columns\TextColumn::make('item.relevantstore.stores')
                 ->label('Relevant Store')
                 ->sortable()
                 ->size('xs')
                 ->weight(FontWeight::Light)
-                ->fontFamily(FontFamily::Sans),
+                ->fontFamily(FontFamily::Sans)
+                ->searchable(),
 
             Tables\Columns\TextColumn::make('item.ictcategories.ictcategories_name')
                 ->label('ICT Category')
                 ->sortable()
                 ->size('xs')
                 ->weight(FontWeight::Light)
-                ->fontFamily(FontFamily::Sans),
+                ->fontFamily(FontFamily::Sans)
+                ->searchable(),
 
             Tables\Columns\TextColumn::make('item.equipment_types.equipment_name')
                 ->label('Equipment Type')
                 ->sortable()
                 ->size('xs')
                 ->weight(FontWeight::Light)
-                ->fontFamily(FontFamily::Sans),
+                ->fontFamily(FontFamily::Sans)
+                ->searchable(),
 
             Tables\Columns\TextColumn::make('purchase_order_nos.purchase_order_no')
                 ->label('Purchase Order Number')
                 ->size('xs')
-                ->searchable(isIndividual: false, isGlobal: true)
+                ->searchable()
                 ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans)
                 ->toggleable(isToggledHiddenByDefault:false),
@@ -313,6 +373,7 @@ Tables\Columns\TextColumn::make('model_name')
                 ->size('xs')
                 ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans)
+                ->searchable()
                 ->toggleable(isToggledHiddenByDefault:false),
 
             Tables\Columns\TextColumn::make('itemprice')
@@ -320,6 +381,7 @@ Tables\Columns\TextColumn::make('model_name')
                 ->size('xs')
                 ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans)
+                ->searchable()
                 ->toggleable(isToggledHiddenByDefault:false),
 
 
@@ -328,20 +390,20 @@ Tables\Columns\TextColumn::make('model_name')
                 ->size('xs')
                 ->weight(FontWeight::Light)
                 ->fontFamily(FontFamily::Sans)
-                ->searchable(isIndividual: false, isGlobal: true),
+                ->searchable(),
             Tables\Columns\TextColumn::make('ledger_card_no')
             ->label('Ledger card No')
             ->size('xs')
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans)
-            ->searchable(isIndividual: false, isGlobal: true)
+            ->searchable()
             ->toggleable(isToggledHiddenByDefault:true),
 Tables\Columns\TextColumn::make('country.name')
              ->label('Country')
              ->size('xs')
              ->weight(FontWeight::Light)
              ->fontFamily(FontFamily::Sans)
-             ->searchable(isIndividual: false, isGlobal: true)
+             ->searchable()
              ->toggleable(isToggledHiddenByDefault:true),
             ])
             ->filters([
