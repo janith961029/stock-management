@@ -76,6 +76,7 @@ protected static ?string $policy = \App\Policies\IssuePlacesPolicy::class;
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             ])
+            ->recordUrl(null)
             ->filters([
                 //
             ])
@@ -108,3 +109,4 @@ protected static ?string $policy = \App\Policies\IssuePlacesPolicy::class;
         ];
     }
 }
+

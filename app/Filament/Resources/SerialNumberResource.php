@@ -302,6 +302,7 @@ Tables\Columns\TextColumn::make('title.title_names_id')
              ->searchable(isIndividual: false, isGlobal: true)
              ->toggleable(isToggledHiddenByDefault:true),
             ])
+            ->recordUrl(null)
             ->filters([
                 //
             ])
@@ -333,3 +334,4 @@ Tables\Columns\TextColumn::make('title.title_names_id')
         ];
     }
 }
+

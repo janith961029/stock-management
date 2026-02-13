@@ -89,6 +89,7 @@ public static function infolist(Infolist $infolist): Infolist
                     ->searchable()
                     ->sortable(),
             ])
+            ->recordUrl(null)
             ->filters([
             
             ])
@@ -113,3 +114,4 @@ public static function infolist(Infolist $infolist): Infolist
         ];
     }
 }
+

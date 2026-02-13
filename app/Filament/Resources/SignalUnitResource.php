@@ -62,6 +62,7 @@ protected static ?string $navigationGroup= 'Master Data';
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             ])
+            ->recordUrl(null)
             ->filters([
                 //
             ])
@@ -94,3 +95,4 @@ protected static ?string $navigationGroup= 'Master Data';
         ];
     }
 }
+

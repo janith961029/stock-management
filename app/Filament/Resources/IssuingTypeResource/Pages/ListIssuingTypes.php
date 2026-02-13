@@ -15,7 +15,7 @@ class ListIssuingTypes extends ListRecords
     {
         return [
             Actions\CreateAction::make(),
-            PrintAction::make(),
+            //PrintAction::make(),
         ];
     }
 }

@@ -218,6 +218,7 @@ class UserResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->recordUrl(null)
             ->filters([
                 // Optional: Module filter
                 // Tables\Filters\SelectFilter::make('module_id')
@@ -253,3 +254,4 @@ class UserResource extends Resource
         ];
     }
 }
+

@@ -61,6 +61,7 @@ class StoreResource extends Resource
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             ])
+            ->recordUrl(null)
             ->filters([
                 //
             ])
@@ -93,3 +94,4 @@ class StoreResource extends Resource
         ];
     }
 }
+

@@ -54,6 +54,7 @@ protected static ?string $policy = \App\Policies\EquipmentTypesPolicy::class;
     public static function table(Table $table): Table
     {
         return $table
+         ->recordUrl(null)
             ->columns([
              Tables\Columns\TextColumn::make('Index')
                     ->rowIndex()

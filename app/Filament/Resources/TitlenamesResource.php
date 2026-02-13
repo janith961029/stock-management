@@ -84,6 +84,7 @@ class TitlenamesResource extends Resource
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             ])
+            ->recordUrl(null)
             ->filters([
                 //
             ])
@@ -116,3 +117,4 @@ class TitlenamesResource extends Resource
         ];
     }
 }
+

@@ -179,6 +179,7 @@ class StroopRequestResource extends Resource
 
 
                 ])
+            ->recordUrl(null)
             ->actions([
                 Tables\Actions\EditAction::make()->iconButton(),
 
@@ -249,3 +250,4 @@ class StroopRequestResource extends Resource
         ];
     }
 }
+

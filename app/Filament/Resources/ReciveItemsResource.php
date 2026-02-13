@@ -48,7 +48,10 @@ class ReciveItemsResource extends Resource
     protected static ?string $modelLabel='Recieved Items';
     protected static ?string $policy = \App\Policies\RecieveItemPolicy::class;
     protected static ?int $navigationSort = 2;
-    protected static ?string $navigationLabel= 'Recieved Items';
+    protected static ?string $navigationLabel= 'Received Items';
+
+    protected static ?string $pluralLabel = 'Received Items';
+    protected static ?string $label = 'Received Item';
     protected static ?string $navigationGroup= 'Items';
 
 
@@ -230,6 +233,7 @@ class ReciveItemsResource extends Resource
              ->fontFamily(FontFamily::Sans)
              ->searchable(isIndividual: false, isGlobal: true),
             ])
+            ->recordUrl(null)
             ->filters([
                 //
             ])
@@ -270,3 +274,4 @@ class ReciveItemsResource extends Resource
         ];
     }
 }
+

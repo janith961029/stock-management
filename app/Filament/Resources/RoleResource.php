@@ -106,6 +106,7 @@ protected static ?string $policy = \App\Policies\RolePolicy::class;
                     ->searchable(isIndividual: false, isGlobal: true)
                     ->sortable()
             ])
+            ->recordUrl(null)
             ->filters([
                 // TrashedFilter::make(),
             ])
@@ -137,3 +138,4 @@ protected static ?string $policy = \App\Policies\RolePolicy::class;
 
 
 }
+

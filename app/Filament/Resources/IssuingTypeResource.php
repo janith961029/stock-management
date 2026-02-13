@@ -58,6 +58,7 @@ class IssuingTypeResource extends Resource
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             ])
+            ->recordUrl(null)
             ->filters([
                 //
             ])
@@ -90,3 +91,4 @@ class IssuingTypeResource extends Resource
         ];
     }
 }
+

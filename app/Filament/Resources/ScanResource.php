@@ -134,6 +134,7 @@ Tables\Columns\TextColumn::make('recive_item.model_name')
             ->fontFamily(FontFamily::Sans),
 
             ])
+            ->recordUrl(null)
             ->filters([
 
             ])
@@ -172,3 +173,4 @@ Tables\Columns\TextColumn::make('recive_item.model_name')
         ];
     }
 }
+

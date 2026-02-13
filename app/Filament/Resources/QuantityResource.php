@@ -184,6 +184,7 @@ Tables\Columns\TextColumn::make('Index')
             ->fontFamily(FontFamily::Sans),
 
             ])
+            ->recordUrl(null)
             ->filters([
 
             ])
@@ -223,3 +224,4 @@ Tables\Columns\TextColumn::make('Index')
         ];
     }
 }
+

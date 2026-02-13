@@ -15,7 +15,7 @@ class ListRecPlaces extends ListRecords
     {
         return [
             Actions\CreateAction::make(),
-            PrintAction::make(),
+           // PrintAction::make(),
         ];
     }
 }

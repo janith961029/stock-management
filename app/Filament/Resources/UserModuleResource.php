@@ -70,6 +70,7 @@ class UserModuleResource extends Resource
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             ])
+            ->recordUrl(null)
             ->filters([
                 //
             ])
@@ -100,3 +101,4 @@ class UserModuleResource extends Resource
         ];
     }
 }
+

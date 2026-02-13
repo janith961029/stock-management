@@ -59,6 +59,7 @@ class RecPlacesResource extends Resource
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             ])
+            ->recordUrl(null)
             ->filters([
                 //
             ])
@@ -91,3 +92,4 @@ class RecPlacesResource extends Resource
         ];
     }
 }
+

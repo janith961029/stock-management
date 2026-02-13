@@ -143,7 +143,8 @@ public static function getTableQuery(): Builder
                     ->visible(fn($record) => $record->requestedstatus !== 'requested'),
 
             ])
-             ->filters([
+            ->recordUrl(null)
+            ->filters([
     Tables\Filters\Filter::make('requested_only')
         ->label('Requested Only')
         ->query(fn ($query) =>
@@ -188,3 +189,4 @@ public static function getTableQuery(): Builder
         ];
     }
 }
+

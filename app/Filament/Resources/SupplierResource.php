@@ -45,12 +45,29 @@ public static function getNavigationBadge(): ?string
                     ->required(),
                 TextInput::make('tele')
                     ->label('Contact No')
+                    ->rule('regex:/^[0-9]+$/')
+                    ->validationMessages([
+                        'regex' => 'Only numbers are allowed.',
+                    ])
+                    ->extraInputAttributes([
+                        'inputmode' => 'numeric',
+                        'pattern' => '[0-9]*',
+                    ])
                     ->required(),
                 TextInput::make('fax')
                     ->label('Fax No')
+                    ->rule('regex:/^[0-9]+$/')
+                    ->validationMessages([
+                        'regex' => 'Only numbers are allowed.',
+                    ])
+                    ->extraInputAttributes([
+                        'inputmode' => 'numeric',
+                        'pattern' => '[0-9]*',
+                    ])
                     ->required(),
                 TextInput::make('email')
                     ->label('Email')
+                    ->email()
                     ->required(),
             ]);
     }
@@ -90,6 +107,7 @@ public static function getNavigationBadge(): ?string
 
 
             ])
+            ->recordUrl(null)
             ->filters([
                 //
             ])

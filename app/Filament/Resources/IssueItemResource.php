@@ -406,6 +406,7 @@ Tables\Columns\TextColumn::make('country.name')
              ->searchable()
              ->toggleable(isToggledHiddenByDefault:true),
             ])
+            ->recordUrl(null)
             ->filters([
                 //
             ])
@@ -424,9 +425,7 @@ Tables\Columns\TextColumn::make('country.name')
                     ->openUrlInNewTab(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+
             ]);
     }
 
@@ -447,3 +446,4 @@ Tables\Columns\TextColumn::make('country.name')
         ];
     }
 }
+

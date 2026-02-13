@@ -209,6 +209,7 @@ class ItemsResource extends Resource
              ->searchable(isIndividual: false, isGlobal: true)
              ,
             ])
+            ->recordUrl(null)
             ->filters([
 
             ])
@@ -250,3 +251,4 @@ class ItemsResource extends Resource
         ];
     }
 }
+

@@ -168,7 +168,8 @@ class PurchaseOrderNosResource extends Resource
             ->filters([
                 //
             ])
-           ->actions([
+            ->recordUrl(null)
+            ->actions([
     TableAction::make('confirm')
         ->icon('heroicon-o-check-circle')
         ->iconButton()
@@ -255,3 +256,4 @@ class PurchaseOrderNosResource extends Resource
         ];
     }
 }
+

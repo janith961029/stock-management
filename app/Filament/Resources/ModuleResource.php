@@ -60,6 +60,7 @@ class ModuleResource extends Resource
                 TextColumn::make('name')->searchable(isIndividual: false, isGlobal: true),
                 TextColumn::make('details')->searchable(isIndividual: false, isGlobal: true)->label('Description')
             ])
+            ->recordUrl(null)
             ->filters([
                 //
             ])
@@ -79,3 +80,4 @@ class ModuleResource extends Resource
         ];
     }
 }
+

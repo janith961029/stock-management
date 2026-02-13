@@ -73,6 +73,7 @@ public static function getNavigationBadge(): ?string
 
 
             ])
+            ->recordUrl(null)
             ->filters([
                 //
             ])
@@ -104,3 +105,4 @@ public static function getNavigationBadge(): ?string
         ];
     }
 }
+

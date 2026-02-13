@@ -27,7 +27,7 @@ class CsoapprovalResource extends Resource
     protected static ?string $policy = \App\Policies\CsoapprovalPolicy::class;
      protected static ?int $navigationSort = 2;
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
-    protected static ?string $navigationLabel= 'Comfirm Items';
+    protected static ?string $navigationLabel= 'Confirm Items';
 
     protected static ?string $pluralLabel = 'OCSO Approvals';
     protected static ?string $label = 'OCSO Approval';
@@ -141,6 +141,7 @@ protected static function getTableQuery(): Builder
 public static function table(Table $table): Table
     {
         return $table
+        ->recordUrl(null)
             ->columns([
               Tables\Columns\TextColumn::make('Index')
                     ->rowIndex()

@@ -70,6 +70,7 @@ class MeasuresResource extends Resource
             ->weight(FontWeight::Light)
             ->fontFamily(FontFamily::Sans),
             ])
+            ->recordUrl(null)
             ->filters([
                 //
             ])
@@ -102,3 +103,4 @@ class MeasuresResource extends Resource
         ];
     }
 }
+
